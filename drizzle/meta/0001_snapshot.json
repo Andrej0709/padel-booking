@@ -1,0 +1,543 @@
+{
+  "id": "8789dce0-b8db-4581-b420-2c97e8c037fd",
+  "prevId": "b8df6f44-82b5-4306-b306-ebee979d9849",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.igraci": {
+      "name": "igraci",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "klub_id": {
+          "name": "klub_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ime": {
+          "name": "ime",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "telefon": {
+          "name": "telefon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kreirano": {
+          "name": "kreirano",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "igraci_klub_id_klubovi_id_fk": {
+          "name": "igraci_klub_id_klubovi_id_fk",
+          "tableFrom": "igraci",
+          "columnsFrom": [
+            "klub_id"
+          ],
+          "tableTo": "klubovi",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "igraci_klub_telefon_unique": {
+          "name": "igraci_klub_telefon_unique",
+          "columns": [
+            "klub_id",
+            "telefon"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "igraci_telefon_format": {
+          "name": "igraci_telefon_format",
+          "value": "\"igraci\".\"telefon\" ~ '^\\+[0-9]{8,15}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.klubovi": {
+      "name": "klubovi",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "naziv": {
+          "name": "naziv",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "adresa": {
+          "name": "adresa",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "telefon": {
+          "name": "telefon",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "vremenska_zona": {
+          "name": "vremenska_zona",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'Europe/Belgrade'"
+        },
+        "kreirano": {
+          "name": "kreirano",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.radno_vreme": {
+      "name": "radno_vreme",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "teren_id": {
+          "name": "teren_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dan": {
+          "name": "dan",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "otvara": {
+          "name": "otvara",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "zatvara": {
+          "name": "zatvara",
+          "type": "time",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "radno_vreme_teren_dan_idx": {
+          "name": "radno_vreme_teren_dan_idx",
+          "columns": [
+            {
+              "expression": "teren_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "dan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "radno_vreme_teren_id_tereni_id_fk": {
+          "name": "radno_vreme_teren_id_tereni_id_fk",
+          "tableFrom": "radno_vreme",
+          "columnsFrom": [
+            "teren_id"
+          ],
+          "tableTo": "tereni",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "radno_vreme_dan_check": {
+          "name": "radno_vreme_dan_check",
+          "value": "\"radno_vreme\".\"dan\" between 1 and 7"
+        },
+        "radno_vreme_otvara_pre_zatvara": {
+          "name": "radno_vreme_otvara_pre_zatvara",
+          "value": "\"radno_vreme\".\"otvara\" < \"radno_vreme\".\"zatvara\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.rezervacije": {
+      "name": "rezervacije",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "teren_id": {
+          "name": "teren_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "igrac_id": {
+          "name": "igrac_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pocetak": {
+          "name": "pocetak",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kraj": {
+          "name": "kraj",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cena_rsd": {
+          "name": "cena_rsd",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "status_rezervacije",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'potvrdjena'"
+        },
+        "izvor": {
+          "name": "izvor",
+          "type": "izvor_rezervacije",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kreirano": {
+          "name": "kreirano",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "rezervacije_igrac_idx": {
+          "name": "rezervacije_igrac_idx",
+          "columns": [
+            {
+              "expression": "igrac_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "with": {},
+          "method": "btree",
+          "concurrently": false
+        }
+      },
+      "foreignKeys": {
+        "rezervacije_teren_id_tereni_id_fk": {
+          "name": "rezervacije_teren_id_tereni_id_fk",
+          "tableFrom": "rezervacije",
+          "columnsFrom": [
+            "teren_id"
+          ],
+          "tableTo": "tereni",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        },
+        "rezervacije_igrac_id_igraci_id_fk": {
+          "name": "rezervacije_igrac_id_igraci_id_fk",
+          "tableFrom": "rezervacije",
+          "columnsFrom": [
+            "igrac_id"
+          ],
+          "tableTo": "igraci",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "restrict"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "rezervacije_pocetak_pre_kraja": {
+          "name": "rezervacije_pocetak_pre_kraja",
+          "value": "\"rezervacije\".\"pocetak\" < \"rezervacije\".\"kraj\""
+        },
+        "rezervacije_cena_pozitivna": {
+          "name": "rezervacije_cena_pozitivna",
+          "value": "\"rezervacije\".\"cena_rsd\" is null or \"rezervacije\".\"cena_rsd\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.tereni": {
+      "name": "tereni",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "klub_id": {
+          "name": "klub_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "naziv": {
+          "name": "naziv",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "vrsta": {
+          "name": "vrsta",
+          "type": "vrsta_terena",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aktivan": {
+          "name": "aktivan",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "kreirano": {
+          "name": "kreirano",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "tereni_klub_id_klubovi_id_fk": {
+          "name": "tereni_klub_id_klubovi_id_fk",
+          "tableFrom": "tereni",
+          "columnsFrom": [
+            "klub_id"
+          ],
+          "tableTo": "klubovi",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "tereni_klub_naziv_unique": {
+          "name": "tereni_klub_naziv_unique",
+          "columns": [
+            "klub_id",
+            "naziv"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.vlasnici": {
+      "name": "vlasnici",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "klub_id": {
+          "name": "klub_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ime": {
+          "name": "ime",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "uloga": {
+          "name": "uloga",
+          "type": "uloga",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'recepcija'"
+        },
+        "kreirano": {
+          "name": "kreirano",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "vlasnici_klub_id_klubovi_id_fk": {
+          "name": "vlasnici_klub_id_klubovi_id_fk",
+          "tableFrom": "vlasnici",
+          "columnsFrom": [
+            "klub_id"
+          ],
+          "tableTo": "klubovi",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "vlasnici_email_unique": {
+          "name": "vlasnici_email_unique",
+          "columns": [
+            "email"
+          ],
+          "nullsNotDistinct": false
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.izvor_rezervacije": {
+      "name": "izvor_rezervacije",
+      "schema": "public",
+      "values": [
+        "telefon",
+        "online"
+      ]
+    },
+    "public.status_rezervacije": {
+      "name": "status_rezervacije",
+      "schema": "public",
+      "values": [
+        "potvrdjena",
+        "odigrana",
+        "nedolazak",
+        "otkazana"
+      ]
+    },
+    "public.uloga": {
+      "name": "uloga",
+      "schema": "public",
+      "values": [
+        "vlasnik",
+        "recepcija"
+      ]
+    },
+    "public.vrsta_terena": {
+      "name": "vrsta_terena",
+      "schema": "public",
+      "values": [
+        "zatvoren",
+        "otvoren"
+      ]
+    }
+  },
+  "schemas": {},
+  "views": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

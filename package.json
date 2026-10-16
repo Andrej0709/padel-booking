@@ -6,12 +6,18 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "db:seed": "node scripts/seed.mjs",
+    "db:test-preklapanje": "node scripts/test-preklapanje.mjs"
   },
   "dependencies": {
     "@neon/config": "^1.9.2",
     "@neon/env": "^1.6.3",
     "@vercel/functions": "^3.10.1",
+    "drizzle-orm": "^0.45.4",
     "next": "16.4.2",
     "pg": "^8.23.1",
     "react": "19.3.0",
@@ -23,6 +29,7 @@
     "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "drizzle-kit": "^0.31.11",
     "eslint": "^9",
     "eslint-config-next": "16.4.2",
     "tailwindcss": "^4",

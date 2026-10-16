@@ -14,6 +14,10 @@ Vidi Odluku 004 u `ODLUKE.md`.
 - Neon projekat je povezan preko `neon.ts`. Podešavanja (DATABASE_URL i DATABASE_URL_UNPOOLED) stižu u `.env.local` komandom `neon deploy` ili `neon env pull`. Taj fajl se nikad ne commit-uje.
 - Baza se iz aplikacije koristi preko `src/lib/db.ts` (drajver `pg` i `attachDatabasePool`, kako Neon preporučuje za Vercel). Aplikacija koristi DATABASE_URL (pooled), a migracije DATABASE_URL_UNPOOLED (direct).
 - `/api/zdravlje` je probna adresa koja proverava da li aplikacija može da dođe do baze.
+- Tabele se opisuju u `src/db/schema.ts` (Drizzle). Nazivi tabela i kolona su na srpskom, bez dijakritika, da odgovaraju mapi sistema.
+- Promena tabela: izmeni `schema.ts`, pa `npm run db:generate`, pa `npm run db:migrate`. Ono što Drizzle ne ume da opiše (pravilo o nepreklapanju, `EXCLUDE` u `drizzle/0001_bez_preklapanja.sql`) ide u ručnu migraciju (`npm run db:generate -- --custom`).
+- `npm run db:seed` ubacuje primer klub "Padel Centar (primer)". `npm run db:test-preklapanje` proverava da baza odbija preklapanje termina.
+- Kad se tabele promene, ažurirati i model podataka u `vizuelno/mapa-sistema.html`.
 
 ## Dogovor o načinu rada
 

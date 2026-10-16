@@ -299,13 +299,13 @@ footer { font-size: 13px; color: var(--muted); }
 
   <section class="model" id="model">
     <div class="model-head">
-      <span class="eyebrow">Temelj sistema · Odluke 005 i 006</span>
+      <span class="eyebrow">Temelj sistema · Odluke 005 i 006 · tabele postoje u bazi</span>
       <h2>Model podataka</h2>
       <p>Tabele u bazi i veze između njih. Klikni na tabelu da vidiš šta čuva i zašto postoji. Plavo označena polja su ona oko kojih smo donosili odluke.</p>
     </div>
     <div class="stage">
       <div class="diagram-wrap">
-        <svg id="er" viewBox="0 -16 900 536" role="img" aria-label="Tabele u bazi: klubovi, vlasnici, tereni, radno vreme, rezervacije i igrači, sa vezama između njih"></svg>
+        <svg id="er" viewBox="0 -16 900 556" role="img" aria-label="Tabele u bazi: klubovi, vlasnici, tereni, radno vreme, rezervacije i igrači, sa vezama između njih"></svg>
       </div>
     </div>
     <div class="model-grid">
@@ -317,7 +317,7 @@ footer { font-size: 13px; color: var(--muted); }
       <div class="panel rules">
         <h3>Pravila koja čuva sama baza</h3>
         <ul>
-          <li>Dve rezervacije na istom terenu ne smeju da se preklapaju. Važi i kad stigne sto zahteva u istoj sekundi, kao u situaciji "Dva klika u istoj sekundi".</li>
+          <li>Dve rezervacije na istom terenu ne smeju da se preklapaju. Važi i kad stigne sto zahteva u istoj sekundi, kao u situaciji "Dva klika u istoj sekundi". Termin 18:30–20:00 sme odmah posle 17:00–18:30, jer se kraj ne računa. Otkazane rezervacije ne drže teren.</li>
           <li>Jedan broj telefona je jedan igrač u okviru jednog kluba.</li>
           <li>Rezervacija ne može da postoji bez terena, a teren bez kluba. Baza ne dozvoljava podatke koji ne pripadaju ničemu.</li>
         </ul>
@@ -762,12 +762,12 @@ const ER = {
   tereni: { x: 350, y: 30, fields: ["id", "klub", "naziv", "vrsta", "aktivan"], keys: ["aktivan"],
     what: "Svaki teren kluba, na primer Teren 1, zatvoren.",
     why: "Polje \"aktivan\" je za mrtvu sezonu iz Odluke 003. Teren koji zimi ne radi označi se kao neaktivan i taj mesec se ne naplaćuje." },
-  radno_vreme: { x: 670, y: 30, fields: ["id", "teren", "dan", "od", "do"], keys: [],
+  radno_vreme: { x: 670, y: 30, fields: ["id", "teren", "dan", "otvara", "zatvara"], keys: [],
     what: "Kad koji teren radi, za svaki dan u nedelji.",
     why: "Bez ovoga server ne može da izračuna slobodne termine. Slobodno je radno vreme minus rezervacije." },
-  rezervacije: { x: 350, y: 300, fields: ["id", "teren", "igrač", "početak", "kraj", "cena", "status"], keys: ["početak", "kraj", "status"],
+  rezervacije: { x: 350, y: 300, fields: ["id", "teren", "igrač", "početak", "kraj", "cena", "status", "izvor"], keys: ["početak", "kraj", "status", "izvor"],
     what: "Ko je zauzeo koji teren i kada. Srce sistema.",
-    why: "Početak i kraj (Odluka 005) dozvoljavaju termine različite dužine i računanje cene. Status (potvrđena, odigrana, nedolazak, otkazana) beleži da li je igrač došao, pa se vidi ko ne dolazi." },
+    why: "Početak i kraj (Odluka 005) dozvoljavaju termine različite dužine i računanje cene. Status (potvrđena, odigrana, nedolazak, otkazana) beleži da li je igrač došao, pa se vidi ko ne dolazi. Izvor (telefon ili online) pokazuje klubu koliko se online rezervacije stvarno koriste. Otkazane rezervacije ne zauzimaju teren." },
   igraci: { x: 670, y: 300, fields: ["id", "klub", "ime", "telefon"], keys: ["telefon"],
     what: "Igrači kluba, prepoznati po broju telefona (Odluka 006).",
     why: "Ista osoba je jedan red, bilo da je zvala telefonom ili rezervisala online. Zato se vidi cela istorija igrača, uključujući nedolaske. Igrač koji igra u dva kluba postoji dva puta, jednom u svakom, da jedan klub ne bi video podatke drugog." }

@@ -1,4 +1,6 @@
 import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
+import * as schema from "@/db/schema";
 import { attachDatabasePool } from "@vercel/functions";
 import { parseEnv } from "@neon/env";
 import config from "../../neon";
@@ -17,3 +19,5 @@ if (process.env.NODE_ENV !== "production") globalForDb.pool = pool;
 
 // Lets Vercel close idle connections before the function instance is suspended.
 attachDatabasePool(pool);
+
+export const db = drizzle({ client: pool, schema });
