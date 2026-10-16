@@ -1,0 +1,848 @@
+<title>Mapa padel sistema</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: zaglavlje, izbor situacije, dijagram sa kontrolama, pa dve kolone (korak | baza + network), rečnik na dnu. */
+:root {
+  --bg: #F1F5F9;
+  --surface: #FFFFFF;
+  --ink: #132031;
+  --muted: #586779;
+  --line: #CFD9E4;
+  --court: #1D58A6;
+  --court-soft: #E3ECF8;
+  --ball: #C6DA22;
+  --ok: #23804F;
+  --ok-soft: #E1F2E8;
+  --bad: #B93A33;
+  --bad-soft: #F8E3E1;
+  --wait: #9A6A12;
+  --wait-soft: #F6ECD8;
+  --font-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0D141C; --surface: #15202B; --ink: #E4ECF4; --muted: #92A2B4; --line: #293746;
+    --court: #6FA7F0; --court-soft: #1B2E46; --ball: #D4E64A;
+    --ok: #5CC48A; --ok-soft: #173326; --bad: #F07B72; --bad-soft: #3A1C1A; --wait: #E2AA4C; --wait-soft: #35290F;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0D141C; --surface: #15202B; --ink: #E4ECF4; --muted: #92A2B4; --line: #293746;
+  --court: #6FA7F0; --court-soft: #1B2E46; --ball: #D4E64A;
+  --ok: #5CC48A; --ok-soft: #173326; --bad: #F07B72; --bad-soft: #3A1C1A; --wait: #E2AA4C; --wait-soft: #35290F;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+.page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 32px 56px;
+  display: grid;
+  gap: 28px;
+}
+
+header { display: grid; gap: 8px; max-width: 68ch; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1;
+  margin: 0;
+  text-wrap: balance;
+}
+header p { margin: 0; color: var(--muted); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 8px; }
+.tab {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.tab:hover { border-color: var(--court); }
+.tab[aria-selected="true"] { background: var(--court); border-color: var(--court); color: var(--surface); }
+.tab:focus-visible, .btn:focus-visible, summary:focus-visible { outline: 2px solid var(--court); outline-offset: 2px; }
+
+.stage {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  display: grid;
+}
+.diagram-wrap { overflow-x: auto; padding: 12px 12px 0; }
+.diagram-wrap svg { display: block; width: 100%; min-width: 640px; height: auto; }
+
+.edge { fill: none; stroke: var(--line); stroke-width: 2; transition: stroke 0.25s, stroke-width 0.25s; }
+.edge.on { stroke: var(--court); stroke-width: 3.5; }
+.node rect { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; transition: fill 0.25s, stroke 0.25s; }
+.node.on rect { fill: var(--court-soft); stroke: var(--court); stroke-width: 2.5; }
+.node .n-name { font-family: var(--font-body); font-weight: 600; font-size: 15px; fill: var(--ink); text-anchor: middle; }
+.node .n-sub { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); text-anchor: middle; }
+.packet { fill: var(--ball); stroke: var(--ink); stroke-width: 1.5; }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px 16px;
+  border-top: 1px solid var(--line);
+}
+.btn {
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.btn:hover:not(:disabled) { border-color: var(--court); }
+.btn:disabled { opacity: 0.4; cursor: default; }
+.btn.primary { background: var(--court); border-color: var(--court); color: var(--surface); }
+.counter { font-family: var(--font-mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.dots { display: flex; gap: 6px; margin-left: auto; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); border: 0; padding: 0; cursor: pointer; }
+.dot.on { background: var(--court); }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+.step { display: grid; gap: 12px; min-width: 0; }
+.step-num { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--court); }
+.step h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 32px;
+  line-height: 1.05;
+  margin: 0;
+  text-wrap: balance;
+}
+.step p { margin: 0; max-width: 62ch; }
+.who { display: flex; flex-wrap: wrap; gap: 6px; }
+.who span {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--court-soft);
+  color: var(--court);
+}
+details.question {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  padding: 14px 16px;
+  display: grid;
+  gap: 8px;
+}
+details.question .q-label { font-family: var(--font-mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--wait); }
+details.question .q-text { font-weight: 600; }
+details.question summary { cursor: pointer; color: var(--court); font-weight: 500; margin-top: 4px; }
+details.question .answer { margin-top: 8px; color: var(--ink); }
+
+.side { display: grid; gap: 16px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: grid; gap: 10px; min-width: 0; }
+.panel h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
+.panel .hint { margin: 0; font-size: 13px; color: var(--muted); }
+.table-wrap { overflow-x: auto; }
+.tname { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; font-variant-numeric: tabular-nums; }
+th { text-align: left; font-weight: 500; color: var(--muted); font-family: var(--font-mono); font-size: 11px; padding: 4px 8px; border-bottom: 1px solid var(--line); }
+td { padding: 5px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+tr.hl td { background: var(--court-soft); }
+tr.new td { background: var(--ok-soft); }
+tr.rejected td { background: var(--bad-soft); color: var(--bad); text-decoration: line-through; }
+tr.rejected td:last-child { text-decoration: none; }
+.empty-row td { color: var(--muted); font-style: italic; }
+.tables { display: grid; gap: 14px; }
+
+.net { display: grid; gap: 6px; }
+.req {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+}
+.req .path { overflow-wrap: anywhere; }
+.req .who-req { grid-column: 1 / -1; font-family: var(--font-body); color: var(--muted); font-size: 12px; margin-top: -2px; }
+.method { font-weight: 500; color: var(--court); }
+.status { padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+.status.ok { background: var(--ok-soft); color: var(--ok); }
+.status.bad { background: var(--bad-soft); color: var(--bad); }
+.status.wait { background: var(--wait-soft); color: var(--wait); }
+.net-empty { font-size: 13px; color: var(--muted); margin: 0; }
+
+.glossary { display: grid; gap: 14px; }
+.glossary h2 { font-family: var(--font-display); font-weight: 600; font-size: 28px; margin: 0; }
+.glossary dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.glossary div { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.glossary dt { font-weight: 600; }
+.glossary dd { margin: 4px 0 0; color: var(--muted); font-size: 14px; }
+
+.model { display: grid; gap: 16px; }
+.model-head { display: grid; gap: 6px; max-width: 68ch; }
+.model-head h2 { font-family: var(--font-display); font-weight: 600; font-size: 28px; margin: 0; }
+.model-head p { margin: 0; color: var(--muted); }
+.model-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .model-grid { grid-template-columns: minmax(0, 1fr); } }
+.er-detail p { margin: 0; }
+.er-detail .er-title { font-family: var(--font-mono); font-size: 15px; font-weight: 500; color: var(--court); text-transform: none; letter-spacing: 0; }
+.rules ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+.er-box { cursor: pointer; }
+.er-box rect.er-frame { fill: var(--surface); stroke: var(--line); stroke-width: 1.5; }
+.er-box rect.er-head { fill: var(--court-soft); }
+.er-box.on rect.er-frame { stroke: var(--court); stroke-width: 2.5; }
+.er-box:focus { outline: none; }
+.er-box:focus-visible rect.er-frame { stroke: var(--court); stroke-width: 3; }
+.er-name { font-family: var(--font-mono); font-weight: 500; font-size: 14px; fill: var(--ink); }
+.er-field { font-family: var(--font-mono); font-size: 12px; fill: var(--muted); }
+.er-field.key { fill: var(--court); font-weight: 500; }
+.er-line { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.er-line.soft { stroke-dasharray: 5 5; }
+.er-rel { font-family: var(--font-mono); font-size: 11px; fill: var(--muted); }
+
+footer { font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .edge, .node rect { transition: none; }
+}
+</style>
+
+<div class="page">
+  <header>
+    <span class="eyebrow">Booking projekat · padel</span>
+    <h1>Mapa sistema</h1>
+    <p>Izaberi situaciju i prati korak po korak kuda putuje poruka. Žuta loptica je poruka koja putuje između delova sistema. Tabele desno pokazuju šta se u tom trenutku dešava u bazi.</p>
+  </header>
+
+  <div class="tabs" role="tablist" id="tabs"></div>
+
+  <section class="stage" aria-label="Dijagram sistema">
+    <div class="diagram-wrap">
+      <svg id="diagram" viewBox="0 0 820 400" role="img" aria-label="Delovi sistema: telefon igrača, računar vlasnika, server, baza podataka, pozadinski radnik i Viber">
+        <g id="edges"></g>
+        <g id="packets"></g>
+        <g id="nodes"></g>
+      </svg>
+    </div>
+    <div class="controls">
+      <button class="btn" id="prev" type="button">← Nazad</button>
+      <button class="btn primary" id="next" type="button">Dalje →</button>
+      <button class="btn" id="play" type="button">Pusti sve</button>
+      <span class="counter" id="counter"></span>
+      <div class="dots" id="dots"></div>
+    </div>
+  </section>
+
+  <section class="grid">
+    <article class="step" aria-live="polite">
+      <span class="step-num" id="stepNum"></span>
+      <h2 id="stepTitle"></h2>
+      <div class="who" id="who"></div>
+      <p id="stepBody"></p>
+      <details class="question" id="question" hidden>
+        <span class="q-label">Pitanje za tebe</span>
+        <span class="q-text" id="qText"></span>
+        <summary>Prikaži moj odgovor</summary>
+        <p class="answer" id="qAnswer"></p>
+      </details>
+    </article>
+
+    <aside class="side">
+      <div class="panel">
+        <h3>Baza podataka</h3>
+        <p class="hint">Plavo: red koji se upravo čita. Zeleno: upravo upisano ili promenjeno. Crveno: baza odbila upis.</p>
+        <div class="tables" id="tables"></div>
+      </div>
+      <div class="panel">
+        <h3>Network tab</h3>
+        <p class="hint">Ovako zahteve vidi programer u browseru (F12 → Network).</p>
+        <div class="net" id="net"></div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="model" id="model">
+    <div class="model-head">
+      <span class="eyebrow">Temelj sistema · Odluke 005 i 006</span>
+      <h2>Model podataka</h2>
+      <p>Tabele u bazi i veze između njih. Klikni na tabelu da vidiš šta čuva i zašto postoji. Plavo označena polja su ona oko kojih smo donosili odluke.</p>
+    </div>
+    <div class="stage">
+      <div class="diagram-wrap">
+        <svg id="er" viewBox="0 -16 900 536" role="img" aria-label="Tabele u bazi: klubovi, vlasnici, tereni, radno vreme, rezervacije i igrači, sa vezama između njih"></svg>
+      </div>
+    </div>
+    <div class="model-grid">
+      <article class="panel er-detail" aria-live="polite">
+        <h3 class="er-title" id="erName"></h3>
+        <p id="erWhat"></p>
+        <p id="erWhy"></p>
+      </article>
+      <div class="panel rules">
+        <h3>Pravila koja čuva sama baza</h3>
+        <ul>
+          <li>Dve rezervacije na istom terenu ne smeju da se preklapaju. Važi i kad stigne sto zahteva u istoj sekundi, kao u situaciji "Dva klika u istoj sekundi".</li>
+          <li>Jedan broj telefona je jedan igrač u okviru jednog kluba.</li>
+          <li>Rezervacija ne može da postoji bez terena, a teren bez kluba. Baza ne dozvoljava podatke koji ne pripadaju ničemu.</li>
+        </ul>
+        <p class="hint">"1 → više" znači: jedan klub ima više terena, ali svaki teren pripada tačno jednom klubu.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="glossary">
+    <h2>Rečnik</h2>
+    <dl>
+      <div><dt>Tabela</dt><dd>Spisak istih stvari u bazi, na primer svi tereni. Svaki red je jedna stvar, a svaka kolona jedan podatak o njoj.</dd></div>
+      <div><dt>Veza (1 → više)</dt><dd>Kako su tabele povezane. Rezervacija ne kopira ceo teren, nego samo pamti njegov broj (id) i preko njega ga nalazi.</dd></div>
+      <div><dt>Frontend</dt><dd>Deo sistema koji vidiš i dodiruješ: stranica na telefonu igrača ili na računaru vlasnika.</dd></div>
+      <div><dt>Backend (server)</dt><dd>Program koji stalno radi na nekom računaru, prima zahteve, proverava ih i odlučuje. Igrač ga nikad ne vidi.</dd></div>
+      <div><dt>Baza podataka</dt><dd>Trajna memorija sistema. Podaci stoje u tabelama, slično kao u Excelu, i ostaju i kad se server ugasi.</dd></div>
+      <div><dt>Zahtev (request)</dt><dd>Poruka koju frontend šalje serveru, na primer "koji termini su slobodni?".</dd></div>
+      <div><dt>Odgovor (response)</dt><dd>Poruka koju server vraća. Uvek ima statusni kod koji kaže kako je prošlo.</dd></div>
+      <div><dt>Statusni kod</dt><dd>Broj u odgovoru. 200 znači "u redu", 201 "napravljeno", 409 "sukob, neko te je pretekao".</dd></div>
+      <div><dt>GET i POST</dt><dd>Vrsta zahteva. GET traži podatke ("daj mi"). POST pravi nešto novo ("napravi rezervaciju").</dd></div>
+      <div><dt>API</dt><dd>Spisak vrata kroz koja programi razgovaraju jedni sa drugima. Telefon razgovara sa serverom preko API-ja, a radnik sa Viberom preko Viber-ovog API-ja.</dd></div>
+      <div><dt>Pozadinski radnik</dt><dd>Poseban program za spore poslove (slanje poruka, podsetnici), da server ne bi morao da čeka.</dd></div>
+    </dl>
+  </section>
+
+  <footer>Klub, igrači i termini na ovoj stranici su izmišljeni primeri. Mapu ažuriramo kako sistem raste.</footer>
+</div>
+
+<script>
+const NODES = {
+  igrac:   { x: 200, y: 80,  name: "Telefon igrača",    sub: "frontend" },
+  vlasnik: { x: 200, y: 260, name: "Računar vlasnika",  sub: "frontend (admin)" },
+  server:  { x: 420, y: 185, name: "Server",            sub: "backend" },
+  baza:    { x: 680, y: 80,  name: "Baza podataka",     sub: "Postgres" },
+  radnik:  { x: 680, y: 260, name: "Pozadinski radnik", sub: "background job" },
+  viber:   { x: 420, y: 345, name: "Viber",             sub: "spoljni servis" }
+};
+const EDGES = [
+  ["igrac", "server", "M200,80 L420,185"],
+  ["vlasnik", "server", "M200,260 L420,185"],
+  ["server", "baza", "M420,185 L680,80"],
+  ["server", "radnik", "M420,185 L680,260"],
+  ["radnik", "baza", "M680,260 L680,80"],
+  ["radnik", "viber", "M680,260 L420,345"],
+  ["viber", "igrac", "M420,345 C0,400 0,80 200,80"]
+];
+
+const baseRez = () => [
+  { id: 1040, br: "#1040", teren: "Teren 1", vreme: "sub 17:00–18:30", igrac: "Nikola" },
+  { id: 1041, br: "#1041", teren: "Teren 2", vreme: "sub 17:30–19:00", igrac: "Jelena" },
+  { id: 1042, br: "#1042", teren: "Teren 1", vreme: "sub 20:30–22:00", igrac: "Stefan" }
+];
+const makeDB = (extraRez = [], podsetnici = []) => ({
+  tereni: {
+    cols: [["id", "id"], ["naziv", "naziv"], ["vrsta", "vrsta"], ["radi", "radi"]],
+    rows: [
+      { id: 1, naziv: "Teren 1", vrsta: "zatvoren", radi: "08–23h" },
+      { id: 2, naziv: "Teren 2", vrsta: "otvoren", radi: "08–23h" }
+    ]
+  },
+  rezervacije: {
+    cols: [["br", "#"], ["teren", "teren"], ["vreme", "vreme"], ["igrac", "igrač"]],
+    rows: baseRez().concat(extraRez)
+  },
+  podsetnici: {
+    cols: [["rez", "rez."], ["kome", "kome"], ["kada", "kada"], ["status", "status"]],
+    rows: podsetnici
+  }
+});
+
+const SCENARIOS = [
+  {
+    label: "Igrač gleda slobodne termine",
+    base: () => makeDB(),
+    netEmpty: "Još nema zahteva.",
+    steps: [
+      { active: ["igrac"], title: "Igrač bira datum",
+        body: "Marko otvori stranicu kluba na telefonu i izabere subotu. Još ništa nije poslato, sve se dešava samo na njegovom telefonu." },
+      { move: ["igrac", "server"], title: "Telefon šalje zahtev",
+        body: "Telefon pošalje serveru pitanje: \"Koji termini su slobodni u subotu?\" Ta poruka se zove zahtev (request). U Network tabu desno vidiš da čeka odgovor.",
+        ops: [{ t: "net", key: "a", m: "GET", p: "/api/slobodni-termini?dan=subota", who: "Marko traži slobodne termine" }] },
+      { move: ["server", "baza"], title: "Server pita bazu",
+        body: "Server sam ništa ne pamti. Sve podatke čuva baza. Server zato traži od baze radno vreme terena i sve rezervacije za subotu." },
+      { move: ["baza", "server"], title: "Baza vraća podatke",
+        body: "Baza vrati 2 terena (rade od 8 do 23h) i 3 postojeće rezervacije za subotu. Pogledaj plave redove u tabelama desno.",
+        ops: [{ t: "hl", table: "tereni", ids: [1, 2] }, { t: "hl", table: "rezervacije", ids: [1040, 1041, 1042] }] },
+      { active: ["server"], title: "Server računa slobodne termine",
+        body: "Radno vreme minus zauzeti termini daje slobodne blokove od 90 minuta. Ovo je najvažnija logika u celom sistemu. Ako ovde pogreši, dva igrača dobiju isti teren." },
+      { move: ["server", "igrac"], title: "Server šalje odgovor",
+        body: "Odgovor (response) nosi kod 200, što znači \"sve u redu\", i spisak slobodnih termina. Imena drugih igrača se ne šalju, samo koji termini su slobodni.",
+        ops: [{ t: "netStatus", key: "a", s: "200 OK" }] },
+      { active: ["igrac"], title: "Telefon prikazuje termine",
+        body: "Telefon od spiska napravi zelena dugmad za svaki slobodan termin. Celo putovanje, od klika do prikaza, traje oko pola sekunde." }
+    ],
+    question: {
+      q: "Zašto server ne pošalje telefonu sve rezervacije, pa da telefon sam izračuna šta je slobodno?",
+      a: "Iz dva razloga. Prvi je privatnost: telefon bi dobio imena svih igrača koji su rezervisali, a to se ne tiče Marka. Drugi su pravila: ako klub uvede pauzu od 15 minuta za čišćenje terena, pravilo se menja na jednom mestu, na serveru, a ne u aplikaciji na hiljadu telefona."
+    }
+  },
+  {
+    label: "Igrač rezerviše teren",
+    base: () => makeDB(),
+    netEmpty: "Još nema zahteva.",
+    steps: [
+      { active: ["igrac"], title: "Marko bira termin",
+        body: "Marko izabere Teren 2, subota 19:00–20:30, i klikne \"Rezerviši\"." },
+      { move: ["igrac", "server"], title: "Zahtev za rezervaciju",
+        body: "Telefon šalje serveru: teren 2, subota 19:00, igrač Marko. Ovo je POST zahtev. GET znači \"daj mi podatke\", a POST znači \"napravi nešto novo\".",
+        ops: [{ t: "net", key: "b", m: "POST", p: "/api/rezervacije", who: "Marko rezerviše Teren 2, sub 19:00" }] },
+      { active: ["server"], title: "Server proverava zahtev",
+        body: "Da li je Marko prijavljen? Da li je termin u budućnosti? Da li teren radi u 19h? Server nikad ne veruje telefonu na reč, jer neko može da izmeni aplikaciju i pošalje bilo šta." },
+      { move: ["server", "baza"], title: "Upis u bazu",
+        body: "Server traži od baze da upiše novi red. Baza ima svoje pravilo: dva termina na istom terenu ne smeju da se preklapaju. Ovaj se ni sa čim ne preklapa, pa prolazi.",
+        ops: [{ t: "add", table: "rezervacije", row: { id: 1043, br: "#1043", teren: "Teren 2", vreme: "sub 19:00–20:30", igrac: "Marko" } }] },
+      { move: ["baza", "server"], title: "Baza potvrđuje",
+        body: "Baza vrati broj nove rezervacije: #1043. Tek sada je rezervacija stvarna. Da se server ugasi sledeće sekunde, termin bi ostao zapisan." },
+      { move: ["server", "baza"], title: "Zakazivanje podsetnika",
+        body: "Server upiše i podsetnik: \"pošalji Marku poruku u petak u 19h\". Server ne čeka da se to desi. Taj posao kasnije preuzima pozadinski radnik.",
+        ops: [{ t: "add", table: "podsetnici", row: { id: "p1043", rez: "#1043", kome: "Marko", kada: "pet 19:00", status: "čeka" } }] },
+      { move: ["server", "igrac"], title: "Potvrda igraču",
+        body: "Kod 201 znači \"napravljeno\". Marko na ekranu vidi: Rezervisano, Teren 2, subota 19:00.",
+        ops: [{ t: "netStatus", key: "b", s: "201 Created" }] },
+      { move: ["server", "vlasnik"], title: "Vlasnik vidi novi termin",
+        body: "U isto vreme server javi računaru vlasnika da osveži raspored. Novi termin se pojavi kod vlasnika bez ikakvog klika." }
+    ],
+    question: {
+      q: "Telefon je već proverio da je termin u budućnosti pre slanja. Zašto server istu stvar proverava ponovo u koraku 3?",
+      a: "Provera na telefonu postoji zbog udobnosti: igrač odmah vidi grešku, bez čekanja. Provera na serveru postoji zbog sigurnosti: telefon pripada igraču i neko može da ga natera da pošalje bilo šta, na primer rezervaciju za juče ili za teren koji ne postoji. Server je jedino mesto kom sistem veruje."
+    }
+  },
+  {
+    label: "Dva klika u istoj sekundi",
+    base: () => makeDB(),
+    netEmpty: "Još nema zahteva.",
+    steps: [
+      { active: ["igrac"], title: "Isti termin, dva igrača",
+        body: "Marko i Ana, svako na svom telefonu, gledaju Teren 1 u nedelju u 18:00. Kod oboje je termin zelen, slobodan." },
+      { move: ["igrac", "server"], double: true, title: "Dva zahteva skoro istovremeno",
+        body: "Oboje kliknu \"Rezerviši\". Zahtevi stignu na server u razmaku od 40 milisekundi, a to je 25 puta kraće od jednog treptaja.",
+        ops: [
+          { t: "net", key: "m", m: "POST", p: "/api/rezervacije", who: "Marko: Teren 1, ned 18:00" },
+          { t: "net", key: "n", m: "POST", p: "/api/rezervacije", who: "Ana: Teren 1, ned 18:00" }
+        ] },
+      { move: ["server", "baza"], double: true, title: "Obe provere kažu \"slobodno\"",
+        body: "Server za svaki zahtev pita bazu da li je termin slobodan. Oba puta dobije odgovor DA, jer nijedan još nije upisan. Ovo je zamka: provera i upis nisu isti trenutak." },
+      { move: ["server", "baza"], title: "Markov upis prolazi",
+        body: "Markov zahtev prvi stigne do baze i upiše se.",
+        ops: [{ t: "add", table: "rezervacije", row: { id: 1044, br: "#1044", teren: "Teren 1", vreme: "ned 18:00–19:30", igrac: "Marko" } }] },
+      { move: ["server", "baza"], title: "Anin upis je odbijen",
+        body: "Baza ima pravilo da se termini na istom terenu ne smeju preklapati. Zato odbije Anin red, iako je server malopre mislio da je termin slobodan. Baza je poslednja linija odbrane.",
+        ops: [{ t: "add", table: "rezervacije", mark: "rejected", row: { id: "ana", br: "—", teren: "Teren 1", vreme: "ned 18:00–19:30", igrac: "Ana (odbijeno)" } }] },
+      { move: ["server", "igrac"], double: true, title: "Dva različita odgovora",
+        body: "Marko dobije 201 (rezervisano). Ana dobije 409, što znači \"sukob\", i poruku: Termin je upravo zauzet, slobodno je u 19:30. Ana je izgubila termin, ali niko nije dobio lažnu potvrdu.",
+        ops: [{ t: "netStatus", key: "m", s: "201 Created" }, { t: "netStatus", key: "n", s: "409 Conflict" }] }
+    ],
+    question: {
+      q: "Da baza nema svoje pravilo o preklapanju, šta bi se desilo u nedelju u 18h na Terenu 1?",
+      a: "I Marko i Ana bi dobili potvrdu za isti teren. U nedelju u 18h na teren za četiri igrača stiže osam ljudi, a klub mora nekoga da vrati kući. Zato provera samo na serveru nije dovoljna: dva zahteva mogu da prođu proveru u isto vreme. Pravilo mora da stoji u bazi, jer baza upisuje jedan po jedan red."
+    }
+  },
+  {
+    label: "Podsetnik dan pre termina",
+    base: () => makeDB(
+      [{ id: 1043, br: "#1043", teren: "Teren 2", vreme: "sub 19:00–20:30", igrac: "Marko" }],
+      [{ id: "p1043", rez: "#1043", kome: "Marko", kada: "pet 19:00", status: "čeka" }]
+    ),
+    netEmpty: "U ovoj situaciji telefon ne šalje nijedan zahtev. Ceo posao radi radnik u pozadini, pa u Network tabu nema ničega.",
+    steps: [
+      { active: ["radnik"], title: "Radnik se budi",
+        body: "Pozadinski radnik je poseban program koji radi stalno, nezavisno od servera. Svakih 5 minuta se probudi, kao alarm." },
+      { move: ["radnik", "baza"], title: "Ima li posla?",
+        body: "Radnik pita bazu: ima li podsetnika kojima je došlo vreme?" },
+      { move: ["baza", "radnik"], title: "Baza: da, jedan",
+        body: "Petak je, 19:00. Markov podsetnik za sutrašnji termin je na redu.",
+        ops: [{ t: "hl", table: "podsetnici", ids: ["p1043"] }, { t: "hl", table: "rezervacije", ids: [1043] }] },
+      { move: ["radnik", "viber"], title: "Slanje preko Vibera",
+        body: "Radnik ne šalje poruku sam. Predaje je Viber-ovom servisu preko njihovog API-ja, a Viber se brine da poruka stigne." },
+      { move: ["viber", "igrac"], title: "Marko dobija poruku",
+        body: "Na telefon mu stigne: Sutra u 19:00 igraš na Terenu 2. Otkaži do 12h ako ne možeš." },
+      { move: ["radnik", "baza"], title: "Radnik beleži da je poslato",
+        body: "Status podsetnika se menja u \"poslato\", da ga radnik ne bi poslao dva puta. Da je Viber bio nedostupan, status bi ostao \"čeka\" i radnik bi pokušao ponovo za 5 minuta. Zato se podsetnik ne gubi.",
+        ops: [{ t: "set", table: "podsetnici", id: "p1043", field: "status", value: "poslato" }] }
+    ],
+    question: {
+      q: "Zašto podsetnik ne šalje sam server, nego poseban radnik?",
+      a: "Server mora da odgovara igračima za delić sekunde. Slanje poruka ume da traje ili da ne uspe iz prvog pokušaja. Kad bi to radio server, sajt bi kočio svaki put kad Viber kasni. Ovako server samo zapiše zadatak i odmah se vrati igračima, a radnik polako obavlja spore poslove."
+    }
+  }
+];
+
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const SVGNS = "http://www.w3.org/2000/svg";
+const $ = (id) => document.getElementById(id);
+let sc = 0, idx = 0, playTimer = null, animIds = [];
+
+function buildDiagram() {
+  const eg = $("edges"), ng = $("nodes");
+  EDGES.forEach(([a, b, d]) => {
+    const p = document.createElementNS(SVGNS, "path");
+    p.setAttribute("d", d);
+    p.setAttribute("class", "edge");
+    p.dataset.key = a + "|" + b;
+    eg.appendChild(p);
+  });
+  Object.entries(NODES).forEach(([key, n]) => {
+    const g = document.createElementNS(SVGNS, "g");
+    g.setAttribute("class", "node");
+    g.dataset.key = key;
+    const r = document.createElementNS(SVGNS, "rect");
+    r.setAttribute("x", n.x - 72); r.setAttribute("y", n.y - 28);
+    r.setAttribute("width", 144); r.setAttribute("height", 56); r.setAttribute("rx", 10);
+    const t1 = document.createElementNS(SVGNS, "text");
+    t1.setAttribute("x", n.x); t1.setAttribute("y", n.y - 2); t1.setAttribute("class", "n-name");
+    t1.textContent = n.name;
+    const t2 = document.createElementNS(SVGNS, "text");
+    t2.setAttribute("x", n.x); t2.setAttribute("y", n.y + 16); t2.setAttribute("class", "n-sub");
+    t2.textContent = n.sub;
+    g.append(r, t1, t2);
+    ng.appendChild(g);
+  });
+}
+
+function findEdge(a, b) {
+  let el = document.querySelector(`.edge[data-key="${a}|${b}"]`);
+  if (el) return { el, reverse: false };
+  el = document.querySelector(`.edge[data-key="${b}|${a}"]`);
+  return el ? { el, reverse: true } : null;
+}
+
+function buildTabs() {
+  const tabs = $("tabs");
+  SCENARIOS.forEach((s, i) => {
+    const b = document.createElement("button");
+    b.className = "tab"; b.type = "button"; b.id = "tab-" + i;
+    b.setAttribute("role", "tab");
+    b.textContent = s.label;
+    b.addEventListener("click", () => { stopPlay(); sc = i; idx = 0; render(true); });
+    tabs.appendChild(b);
+  });
+}
+
+function computeState(s, upto) {
+  const db = s.base();
+  const net = [];
+  const hl = {};
+  for (let i = 0; i <= upto; i++) {
+    for (const op of (s.steps[i].ops || [])) {
+      if (op.t === "add") db[op.table].rows.push({ ...op.row, _mark: op.mark || "new", _step: i });
+      else if (op.t === "set") {
+        const r = db[op.table].rows.find((r) => r.id === op.id);
+        if (r) { r[op.field] = op.value; r._changed = i; }
+      }
+      else if (op.t === "hl" && i === upto) hl[op.table] = op.ids;
+      else if (op.t === "net") net.push({ key: op.key, m: op.m, p: op.p, who: op.who, s: "čeka…" });
+      else if (op.t === "netStatus") {
+        const n = net.find((n) => n.key === op.key);
+        if (n) n.s = op.s;
+      }
+    }
+  }
+  return { db, net, hl };
+}
+
+const TABLE_NAMES = { tereni: "tabela: tereni", rezervacije: "tabela: rezervacije", podsetnici: "tabela: podsetnici" };
+
+function renderTables(state) {
+  const wrap = $("tables");
+  wrap.innerHTML = "";
+  Object.entries(state.db).forEach(([name, tbl]) => {
+    const box = document.createElement("div");
+    const label = document.createElement("div");
+    label.className = "tname"; label.textContent = TABLE_NAMES[name];
+    const tw = document.createElement("div"); tw.className = "table-wrap";
+    const t = document.createElement("table");
+    const thead = document.createElement("thead");
+    const hr = document.createElement("tr");
+    tbl.cols.forEach(([, h]) => { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); });
+    thead.appendChild(hr);
+    const tb = document.createElement("tbody");
+    if (!tbl.rows.length) {
+      const tr = document.createElement("tr"); tr.className = "empty-row";
+      const td = document.createElement("td"); td.colSpan = tbl.cols.length; td.textContent = "prazno";
+      tr.appendChild(td); tb.appendChild(tr);
+    }
+    tbl.rows.forEach((r) => {
+      const tr = document.createElement("tr");
+      if (r._mark === "rejected") tr.className = "rejected";
+      else if (r._step === idx || r._changed === idx) tr.className = "new";
+      else if ((state.hl[name] || []).includes(r.id)) tr.className = "hl";
+      tbl.cols.forEach(([k]) => { const td = document.createElement("td"); td.textContent = r[k]; tr.appendChild(td); });
+      tb.appendChild(tr);
+    });
+    t.append(thead, tb); tw.appendChild(t);
+    box.append(label, tw);
+    wrap.appendChild(box);
+  });
+}
+
+function renderNet(state, s) {
+  const wrap = $("net");
+  wrap.innerHTML = "";
+  if (!state.net.length) {
+    const p = document.createElement("p"); p.className = "net-empty"; p.textContent = s.netEmpty;
+    wrap.appendChild(p); return;
+  }
+  state.net.forEach((n) => {
+    const row = document.createElement("div"); row.className = "req";
+    const m = document.createElement("span"); m.className = "method"; m.textContent = n.m;
+    const p = document.createElement("span"); p.className = "path"; p.textContent = n.p;
+    const st = document.createElement("span");
+    st.className = "status " + (n.s.startsWith("2") ? "ok" : n.s.startsWith("4") ? "bad" : "wait");
+    st.textContent = n.s;
+    const w = document.createElement("span"); w.className = "who-req"; w.textContent = n.who;
+    row.append(m, p, st, w);
+    wrap.appendChild(row);
+  });
+}
+
+function clearPackets() {
+  animIds.forEach(cancelAnimationFrame);
+  animIds = [];
+  $("packets").innerHTML = "";
+}
+
+function animatePacket(edge, delay) {
+  const c = document.createElementNS(SVGNS, "circle");
+  c.setAttribute("r", 8); c.setAttribute("class", "packet");
+  const len = edge.el.getTotalLength();
+  const startPt = edge.el.getPointAtLength(edge.reverse ? len : 0);
+  c.setAttribute("cx", startPt.x); c.setAttribute("cy", startPt.y);
+  c.style.opacity = "0";
+  $("packets").appendChild(c);
+  const dur = 950;
+  const t0 = performance.now() + delay;
+  const frame = (now) => {
+    const t = Math.min(1, Math.max(0, (now - t0) / dur));
+    if (now >= t0) c.style.opacity = "1";
+    const e = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+    const pt = edge.el.getPointAtLength(edge.reverse ? len * (1 - e) : len * e);
+    c.setAttribute("cx", pt.x); c.setAttribute("cy", pt.y);
+    if (t < 1) animIds.push(requestAnimationFrame(frame));
+    else setTimeout(() => c.remove(), 250);
+  };
+  animIds.push(requestAnimationFrame(frame));
+}
+
+function render(animate) {
+  const s = SCENARIOS[sc];
+  const step = s.steps[idx];
+  const last = s.steps.length - 1;
+
+  document.querySelectorAll(".tab").forEach((b, i) => b.setAttribute("aria-selected", String(i === sc)));
+
+  const active = new Set(step.active || []);
+  if (step.move) step.move.forEach((k) => active.add(k));
+  document.querySelectorAll(".node").forEach((g) => g.classList.toggle("on", active.has(g.dataset.key)));
+  document.querySelectorAll(".edge").forEach((p) => p.classList.remove("on"));
+
+  clearPackets();
+  if (step.move) {
+    const edge = findEdge(step.move[0], step.move[1]);
+    if (edge) {
+      edge.el.classList.add("on");
+      if (animate && !reduceMotion) {
+        animatePacket(edge, 0);
+        if (step.double) animatePacket(edge, 260);
+      }
+    }
+  }
+
+  $("stepNum").textContent = `Korak ${idx + 1} od ${s.steps.length}`;
+  $("stepTitle").textContent = step.title;
+  $("stepBody").textContent = step.body;
+  const who = $("who");
+  who.innerHTML = "";
+  [...active].forEach((k) => { const sp = document.createElement("span"); sp.textContent = NODES[k].name; who.appendChild(sp); });
+
+  const q = $("question");
+  if (idx === last) {
+    q.hidden = false;
+    $("qText").textContent = s.question.q;
+    $("qAnswer").textContent = s.question.a;
+  } else {
+    q.hidden = true;
+    q.open = false;
+  }
+
+  const state = computeState(s, idx);
+  renderTables(state);
+  renderNet(state, s);
+
+  $("counter").textContent = `${idx + 1} / ${s.steps.length}`;
+  $("prev").disabled = idx === 0;
+  $("next").disabled = idx === last;
+
+  const dots = $("dots");
+  dots.innerHTML = "";
+  s.steps.forEach((_, i) => {
+    const d = document.createElement("button");
+    d.type = "button"; d.className = "dot" + (i === idx ? " on" : "");
+    d.setAttribute("aria-label", `Korak ${i + 1}`);
+    d.addEventListener("click", () => { stopPlay(); idx = i; render(true); });
+    dots.appendChild(d);
+  });
+}
+
+function go(delta) {
+  const n = idx + delta;
+  if (n < 0 || n >= SCENARIOS[sc].steps.length) return false;
+  idx = n;
+  render(true);
+  return true;
+}
+
+function stopPlay() {
+  if (playTimer) { clearInterval(playTimer); playTimer = null; }
+  $("play").textContent = "Pusti sve";
+}
+
+function startPlay() {
+  if (idx === SCENARIOS[sc].steps.length - 1) { idx = 0; render(true); }
+  $("play").textContent = "Pauza";
+  playTimer = setInterval(() => { if (!go(1)) stopPlay(); }, 3200);
+}
+
+$("prev").addEventListener("click", () => { stopPlay(); go(-1); });
+$("next").addEventListener("click", () => { stopPlay(); go(1); });
+$("play").addEventListener("click", () => (playTimer ? stopPlay() : startPlay()));
+document.addEventListener("keydown", (e) => {
+  if (e.target.closest && e.target.closest("input, textarea")) return;
+  if (e.key === "ArrowRight") { stopPlay(); go(1); }
+  if (e.key === "ArrowLeft") { stopPlay(); go(-1); }
+});
+
+const ER = {
+  klubovi: { x: 30, y: 30, fields: ["id", "naziv", "adresa", "telefon"], keys: [],
+    what: "Jedan red je jedan klub.",
+    why: "Sistem od prvog dana podržava više klubova. Svaki drugi podatak (tereni, igrači, vlasnici) zna kom klubu pripada, pa klub vidi samo svoje." },
+  vlasnici: { x: 30, y: 300, fields: ["id", "klub", "ime", "email", "uloga"], keys: ["uloga"],
+    what: "Ljudi koji ulaze u admin deo kluba: vlasnik i recepcija.",
+    why: "Uloga određuje šta ko sme. Recepcija upisuje rezervacije, a samo vlasnik menja cene i radno vreme." },
+  tereni: { x: 350, y: 30, fields: ["id", "klub", "naziv", "vrsta", "aktivan"], keys: ["aktivan"],
+    what: "Svaki teren kluba, na primer Teren 1, zatvoren.",
+    why: "Polje \"aktivan\" je za mrtvu sezonu iz Odluke 003. Teren koji zimi ne radi označi se kao neaktivan i taj mesec se ne naplaćuje." },
+  radno_vreme: { x: 670, y: 30, fields: ["id", "teren", "dan", "od", "do"], keys: [],
+    what: "Kad koji teren radi, za svaki dan u nedelji.",
+    why: "Bez ovoga server ne može da izračuna slobodne termine. Slobodno je radno vreme minus rezervacije." },
+  rezervacije: { x: 350, y: 300, fields: ["id", "teren", "igrač", "početak", "kraj", "cena", "status"], keys: ["početak", "kraj", "status"],
+    what: "Ko je zauzeo koji teren i kada. Srce sistema.",
+    why: "Početak i kraj (Odluka 005) dozvoljavaju termine različite dužine i računanje cene. Status (potvrđena, odigrana, nedolazak, otkazana) beleži da li je igrač došao, pa se vidi ko ne dolazi." },
+  igraci: { x: 670, y: 300, fields: ["id", "klub", "ime", "telefon"], keys: ["telefon"],
+    what: "Igrači kluba, prepoznati po broju telefona (Odluka 006).",
+    why: "Ista osoba je jedan red, bilo da je zvala telefonom ili rezervisala online. Zato se vidi cela istorija igrača, uključujući nedolaske. Igrač koji igra u dva kluba postoji dva puta, jednom u svakom, da jedan klub ne bi video podatke drugog." }
+};
+const ER_LINKS = [
+  { d: "M230,80 H350", lx: 290, ly: 72 },
+  { d: "M130,164 V300", lx: 138, ly: 236, anchor: "start" },
+  { d: "M550,80 H670", lx: 610, ly: 72 },
+  { d: "M450,186 V300", lx: 458, ly: 246, anchor: "start" },
+  { d: "M670,360 H550", lx: 610, ly: 352, label: "više ← 1" },
+  { d: "M130,30 V2 H886 V360 H870", lx: 600, ly: -4, soft: true, label: "1 → više (klub → igrači)" }
+];
+const ER_W = 200;
+const erH = (n) => 34 + 22 * n + 12;
+
+function buildER() {
+  const svg = $("er");
+  ER_LINKS.forEach((l) => {
+    const p = document.createElementNS(SVGNS, "path");
+    p.setAttribute("d", l.d);
+    p.setAttribute("class", "er-line" + (l.soft ? " soft" : ""));
+    svg.appendChild(p);
+    const t = document.createElementNS(SVGNS, "text");
+    t.setAttribute("x", l.lx); t.setAttribute("y", l.ly);
+    t.setAttribute("class", "er-rel");
+    t.setAttribute("text-anchor", l.anchor || "middle");
+    t.textContent = l.label || "1 → više";
+    svg.appendChild(t);
+  });
+  Object.entries(ER).forEach(([name, tb]) => {
+    const g = document.createElementNS(SVGNS, "g");
+    g.setAttribute("class", "er-box");
+    g.setAttribute("tabindex", "0");
+    g.setAttribute("role", "button");
+    g.setAttribute("aria-label", "Tabela " + name);
+    g.dataset.name = name;
+    const h = erH(tb.fields.length);
+    const frame = document.createElementNS(SVGNS, "rect");
+    frame.setAttribute("x", tb.x); frame.setAttribute("y", tb.y);
+    frame.setAttribute("width", ER_W); frame.setAttribute("height", h); frame.setAttribute("rx", 8);
+    frame.setAttribute("class", "er-frame");
+    const head = document.createElementNS(SVGNS, "rect");
+    head.setAttribute("x", tb.x + 1); head.setAttribute("y", tb.y + 1);
+    head.setAttribute("width", ER_W - 2); head.setAttribute("height", 32); head.setAttribute("rx", 7);
+    head.setAttribute("class", "er-head");
+    const nm = document.createElementNS(SVGNS, "text");
+    nm.setAttribute("x", tb.x + 14); nm.setAttribute("y", tb.y + 22);
+    nm.setAttribute("class", "er-name");
+    nm.textContent = name;
+    g.append(frame, head, nm);
+    tb.fields.forEach((f, i) => {
+      const ft = document.createElementNS(SVGNS, "text");
+      ft.setAttribute("x", tb.x + 14); ft.setAttribute("y", tb.y + 34 + 22 * i + 18);
+      ft.setAttribute("class", "er-field" + (tb.keys.includes(f) ? " key" : ""));
+      ft.textContent = f;
+      g.appendChild(ft);
+    });
+    g.addEventListener("click", () => selectER(name));
+    g.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectER(name); }
+    });
+    svg.appendChild(g);
+  });
+}
+
+function selectER(name) {
+  document.querySelectorAll(".er-box").forEach((g) => g.classList.toggle("on", g.dataset.name === name));
+  $("erName").textContent = "tabela: " + name;
+  $("erWhat").textContent = ER[name].what;
+  $("erWhy").textContent = ER[name].why;
+}
+
+buildDiagram();
+buildTabs();
+render(false);
+buildER();
+selectER("rezervacije");
+</script>
