@@ -12,7 +12,8 @@
     "db:studio": "drizzle-kit studio",
     "db:seed": "node scripts/seed.mjs",
     "db:test-preklapanje": "node scripts/test-preklapanje.mjs",
-    "db:dodaj-clana": "node scripts/dodaj-clana.mjs"
+    "db:dodaj-clana": "node scripts/dodaj-clana.mjs",
+    "db:test-lozinke": "node scripts/test-lozinke.mjs"
   },
   "dependencies": {
     "@neon/config": "^1.9.2",

@@ -3,8 +3,10 @@
 // Run with: npm run db:seed
 //
 // Test accounts (local development only, emails are printed in the server log, never sent):
-//   owner:  vlasnik@primer.rs / Primer-lozinka-2026  (in the club team below)
-//   player: igrac@primer.rs   / Primer-lozinka-2026  (not in any team)
+//   owner:  vlasnik@primer.rs  (in the club team below)
+//   player: igrac@primer.rs    (not in any team)
+// Their password is TEST_LOZINKA in .env.local, never in this file: the repository is public
+// and the same database serves the live site (decision 012). Set it with npm run db:test-lozinke.
 // Accounts are not deleted by this script. If they do not exist yet, sign up on /registracija
 // and open the confirmation link from the server log.
 import pg from "pg";

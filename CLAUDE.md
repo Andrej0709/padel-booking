@@ -7,7 +7,7 @@ Sistem za online zakazivanje termina za lokalne biznise u Srbiji. Izabrana niša
 ## Gde smo stali (2026-10-17)
 
 Urađeno:
-- Odluke 001–011 su u `ODLUKE.md` (niša padel, prvo raspored pa online rezervacije, pretplata po aktivnom terenu, Next.js + Vercel + Neon, početak i kraj termina, igrač po broju telefona, raspored kao tabla, ceo sajt odjednom, prijava emailom ili Google-om, obavezan nalog za online rezervaciju, jedna cena po satu).
+- Odluke 001–012 su u `ODLUKE.md` (niša padel, prvo raspored pa online rezervacije, pretplata po aktivnom terenu, Next.js + Vercel + Neon, početak i kraj termina, igrač po broju telefona, raspored kao tabla, ceo sajt odjednom, prijava emailom ili Google-om, obavezan nalog za online rezervaciju, jedna cena po satu, jedna baza za računar i sajt na internetu).
 - Ceo sajt u stilu Claude Design dizajna (boje, slova Barlow, znak, svetla i tamna tema). Dizajn je stigao kao zip i nije deo projekta.
 - Igrač: `/k/[slug]` (stranica kluba i online rezervacija), `/moje-rezervacije` (otkazivanje do 12 sati pre), `/prijava`, `/registracija`, `/zaboravljena-lozinka`, `/nova-lozinka`. Početna strana vodi na prvi klub.
 - Vlasnik: `/vlasnik` (raspored, tabla), `/vlasnik/igraci` i profil igrača, `/vlasnik/podesavanja` (klub, cena, tereni, radno vreme), `/vlasnik/tim`. Recepcija ne vidi podešavanja i tim.
@@ -19,7 +19,8 @@ Urađeno:
 Sledeći korak: nije izabran. Kandidati: Google prijava (korisnik pravi Google Cloud projekat), servis za slanje emaila, objavljivanje na Vercelu, razgovor sa vlasnicima uz gotov sajt.
 
 Otvoreno, za kasnije:
-- Sajt ostaje samo lokalno dok prijava ne radi i na internetu (Odluka 008, uslov 2). Za objavljivanje treba: servis za email (sada se linkovi ispisuju u log servera, a u produkciji slanje namerno puca), BETTER_AUTH_SECRET i BETTER_AUTH_URL na Vercelu, Neon integracija.
+- Sajt je objavljen na https://padel-booking-kappa.vercel.app (Vercel, grana main se objavljuje sama posle push-a). Podešavanja su u Vercel panelu: DATABASE_URL, DATABASE_URL_UNPOOLED, BETTER_AUTH_SECRET (drugačiji od lokalnog), BETTER_AUTH_URL. Vrednosti se upisuju bez navodnika: u `.env.local` stoje pod navodnicima, a Vercel bi ih uzeo doslovno (greška `ENOTFOUND base`). Registracija na internetu ne radi dok se ne poveže servis za email (u produkciji slanje namerno javlja grešku).
+- Računar i sajt na internetu dele istu Neon granu "production" (Odluka 012). Kad dođe prvi pravi klub, prelazimo na odvojene grane.
 - Google prijava: dugme postoji, ali radi tek kad se u `.env.local` upišu GOOGLE_CLIENT_ID i GOOGLE_CLIENT_SECRET.
 - Podsetnici: proveriti ograničenja Vercel cron-a.
 - Cenovnik po dobu dana (Odluka 011, opcija B) ako prvi klub tako naplaćuje.
@@ -48,7 +49,7 @@ Vidi Odluku 004 u `ODLUKE.md`.
 - Ko sme šta: `src/lib/pristup.ts` (`zahtevajClana`, `zahtevajVlasnika`). Svaka stranica i svaka server akcija za vlasnika proverava ponovo. Član tima je onaj čiji je email u tabeli `vlasnici`.
 - Emailovi (`src/lib/email.ts`) se u razvoju ispisuju u log servera sa oznakom `[EMAIL]`.
 - Kod koji radi u browseru ne sme da uvozi `src/lib/raspored.ts` ili `db.ts` (vuku bazu u browser i ruše stranicu). Za datume u browseru služi `src/lib/kalendar.ts`, za prikaz `src/lib/format.ts`.
-- `npm run db:dodaj-clana -- email "Ime" vlasnik` daje emailu pristup primer klubu. Test nalozi su opisani na vrhu `scripts/seed.mjs`.
+- `npm run db:dodaj-clana -- email "Ime" vlasnik` daje emailu pristup primer klubu. Test nalozi su opisani na vrhu `scripts/seed.mjs`. Njihova lozinka je samo u `.env.local` (TEST_LOZINKA), jer je GitHub repozitorijum javan; `npm run db:test-lozinke` je postavlja.
 - Ako dev server prijavi `ENOENT ... build-manifest.json`, ugasiti ga, obrisati `.next/dev` i pokrenuti ponovo.
 
 ## Dogovor o načinu rada

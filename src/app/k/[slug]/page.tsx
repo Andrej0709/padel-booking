@@ -53,7 +53,7 @@ async function Klub({ params, searchParams }: PageProps<"/k/[slug]">) {
   return (
     <div className="flex-1 bg-bg">
       <div className="bg-conf-bg text-white">
-        <div className="mx-auto flex max-w-[560px] flex-col gap-4 px-[18px] pb-6 pt-4">
+        <div className="mx-auto flex max-w-[1200px] flex-col gap-4 px-[18px] pb-6 pt-4 sm:px-6 lg:gap-6 lg:pb-9 lg:pt-6">
           <div className="flex items-center gap-2.5">
             <Znak velicina={34} tamniji />
             <div className="min-w-0 flex-1">
@@ -66,12 +66,17 @@ async function Klub({ params, searchParams }: PageProps<"/k/[slug]">) {
                 className="flex h-[42px] items-center rounded-[10px] bg-white/15 px-3.5 text-sm font-bold"
                 aria-label={`Pozovi klub ${lepTelefon(klub.telefon)}`}
               >
-                Pozovi
+                Pozovi<span className="hidden sm:inline">&nbsp;{lepTelefon(klub.telefon)}</span>
               </a>
             )}
           </div>
           <div className="flex items-end justify-between gap-3">
-            <h1 className="font-naslov text-[32px] font-bold leading-none">Rezerviši teren</h1>
+            <div>
+              <h1 className="font-naslov text-[32px] font-bold leading-none lg:text-[44px]">Rezerviši teren</h1>
+              <p className="mt-2 hidden text-[15px] opacity-85 sm:block">
+                Izaberi dan, trajanje i slobodan termin. Plaćanje u klubu.
+              </p>
+            </div>
             <a
               href={korisnik ? "/moje-rezervacije" : `/prijava?nazad=/k/${klub.slug}`}
               className="text-sm font-bold underline-offset-2 hover:underline"

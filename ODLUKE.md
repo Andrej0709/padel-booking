@@ -293,3 +293,23 @@ Ovo menja Odluku 006 samo za online rezervacije: online igrač ima nalog, telefo
 - Ako se pojave lažne rezervacije sa izmišljenim brojevima. Tada dodajemo SMS proveru broja jednom, pri registraciji.
 - Ako se nađe domaći SMS servis po ceni od par dinara. Tada isto dodajemo SMS proveru.
 - Ako mnogo igrača odustane kad vidi da mora da napravi nalog. Tada razmatramo rezervaciju bez naloga uz potvrdu vlasnika (opcija B).
+
+## 012. Jedna baza za računar i sajt na internetu
+
+Datum: 2026-10-17
+
+Problem: Sajt ide na Vercel. Treba odlučiti da li sajt na internetu i korisnikov računar koriste istu bazu. Na računaru se testira: lažne rezervacije, test igrači i test nalozi.
+
+Opcije:
+- A) Ista baza (Neon grana "production"). Prednost: najjednostavnije, ništa dodatno se ne podešava. Mana: testovi sa računara se vide na pravom sajtu, a test nalozi rade i na internetu.
+- B) Odvojene baze (posebna Neon grana za računar). Prednost: pravi sajt ostaje čist, testira se slobodno. Mana: jedno podešavanje više, a promene tabela se primenjuju na obe grane.
+
+Korisnik je predložio: A. Najjednostavnije, test nalozi ne moraju da se brišu, a niko neće pristupiti sajtu.
+
+Claude je izabrao: A, uz promenu lozinki test naloga.
+- Slaže se da je jedna baza dovoljna dok na sajtu nema pravih klubova ni pravih igrača.
+- Ne slaže se sa "niko neće pristupiti". GitHub repozitorijum je javan, a lozinka test naloga je stajala u `scripts/seed.mjs`. Svako ko pročita fajl mogao bi da uđe u deo za vlasnika na pravom sajtu. Provera "niko neće" ne postoji, a ispravka je jeftina.
+- Zato test nalozi ostaju, ali dobijaju novu nasumičnu lozinku koja stoji samo u `.env.local` (TEST_LOZINKA), nikad na GitHubu. Stara lozinka iz istorije repozitorijuma više ništa ne otvara.
+
+Šta bi promenilo odluku:
+- Kad dođe prvi pravi klub. Tada prelazimo na B, da se test podaci ne mešaju sa pravim rezervacijama i ličnim podacima.

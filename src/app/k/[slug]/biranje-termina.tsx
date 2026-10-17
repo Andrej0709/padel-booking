@@ -46,7 +46,10 @@ export function BiranjeTermina({
     : "";
 
   useEffect(() => {
-    if (izbor) okvirIzbora.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    // On a phone the box is below the courts, so bring it into view. On a computer it is already visible.
+    if (izbor && !window.matchMedia("(min-width: 1024px)").matches) {
+      okvirIzbora.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
   }, [izbor]);
 
   function rezervisi() {
@@ -117,8 +120,11 @@ export function BiranjeTermina({
   }
 
   return (
-    <div className="mx-auto flex max-w-[560px] flex-col gap-[18px] px-4 pb-24 pt-4">
-      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
+    // Phone: one column, the booking box appears under the courts.
+    // Computer: courts side by side on the left, the booking box stays visible on the right.
+    <div className="mx-auto grid max-w-[1200px] items-start gap-6 px-4 pb-24 pt-4 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:pt-6">
+      <div className="flex min-w-0 flex-col gap-[18px]">
+      <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-7 sm:overflow-visible sm:px-0 xl:grid-cols-14">
         {dani.map((d, i) => {
           const izabran = d === datum;
           return (
@@ -127,7 +133,7 @@ export function BiranjeTermina({
               type="button"
               onClick={() => idi(d, trajanje)}
               aria-pressed={izabran}
-              className={`flex h-[60px] w-[52px] flex-none flex-col items-center justify-center gap-0.5 rounded-xl ${
+              className={`flex h-[60px] w-[52px] flex-none flex-col sm:w-auto items-center justify-center gap-0.5 rounded-xl ${
                 izabran ? "bg-ink text-surface" : "bg-surface text-ink shadow-[0_0_0_1px_var(--line)]"
               }`}
             >
@@ -140,7 +146,7 @@ export function BiranjeTermina({
 
       <div className="flex flex-col gap-1.5">
         <div className="text-[13px] font-semibold text-muted">Trajanje</div>
-        <div className="flex h-11 gap-1 rounded-xl bg-surface2 p-[3px]">
+        <div className="flex h-11 gap-1 rounded-xl bg-surface2 p-[3px] sm:max-w-[420px]">
           {[60, 90, 120].map((v) => (
             <button
               key={v}
@@ -159,6 +165,7 @@ export function BiranjeTermina({
 
       {tereni.length === 0 && <p className="text-[15px] text-muted">Klub trenutno nema terena za online rezervaciju.</p>}
 
+      <div className="grid gap-4 md:grid-cols-2">
       {tereni.map((t) => {
         const slobodnih = t.termini.filter((x) => x.slobodan).length;
         return (
@@ -206,6 +213,43 @@ export function BiranjeTermina({
         );
       })}
 
+      </div>
+      </div>
+
+      <aside className="lg:sticky lg:top-6">
+      {!izbor && (
+        <div className="hidden flex-col gap-3 rounded-2xl bg-surface p-5 shadow-[0_0_0_1px_var(--line)] lg:flex">
+          <span className="text-[13px] font-semibold text-muted">Tvoj termin</span>
+          <strong className="font-naslov text-[22px] leading-tight">Izaberi slobodan termin</strong>
+          <p className="text-[15px] leading-relaxed text-muted">
+            Klikni na vreme kod terena koji želiš. Termin ostaje tvoj tek kad ga potvrdiš ovde.
+          </p>
+          <dl className="mt-1 flex flex-col gap-2 border-t border-line pt-3 text-sm">
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Cena za {trajanje} min</dt>
+              <dd className="font-semibold">{dinari(cenaRsd)}</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Plaćanje</dt>
+              <dd className="font-semibold">u klubu</dd>
+            </div>
+            <div className="flex justify-between gap-3">
+              <dt className="text-muted">Otkazivanje</dt>
+              <dd className="font-semibold">do 12 h pre termina</dd>
+            </div>
+            {telefonKluba && (
+              <div className="flex justify-between gap-3">
+                <dt className="text-muted">Telefon kluba</dt>
+                <dd>
+                  <a href={`tel:${telefonKluba}`} className="font-semibold text-brand">
+                    {lepTelefon(telefonKluba)}
+                  </a>
+                </dd>
+              </div>
+            )}
+          </dl>
+        </div>
+      )}
       {izbor && (
         <div
           ref={okvirIzbora}
@@ -276,6 +320,7 @@ export function BiranjeTermina({
           )}
         </div>
       )}
+      </aside>
     </div>
   );
 }
