@@ -24,7 +24,7 @@ export function Obrazac({
         <button
           type="submit"
           disabled={salje}
-          className="h-12 rounded-xl bg-brand px-5 text-[15px] font-bold text-white hover:brightness-110 disabled:opacity-60"
+          className="h-12 rounded-full bg-brand px-6 text-[15px] font-bold text-white shadow-[0_8px_24px_-10px_var(--brand)] transition-[transform,filter] duration-300 ease-glatko hover:brightness-110 active:scale-[0.97] disabled:opacity-60"
         >
           {salje ? "Čuvam…" : dugme}
         </button>

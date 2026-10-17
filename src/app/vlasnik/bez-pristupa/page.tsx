@@ -4,7 +4,7 @@ import { redirect } from "next/navigation";
 import { Znak } from "@/components/znak";
 import { naslov } from "@/components/ui";
 import { trenutniKorisnik } from "@/lib/pristup";
-import { Odjava } from "../odjava";
+import { Odjava } from "@/components/odjava";
 
 export const metadata = { title: "Nema pristupa" };
 

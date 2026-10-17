@@ -22,7 +22,7 @@ export type UnosOnline = {
   telefon: string;
 };
 
-export async function rezervisiOnline(unos: UnosOnline): Promise<{ greska?: string; prijava?: boolean; cenaRsd?: number | null }> {
+export async function rezervisiOnline(unos: UnosOnline): Promise<{ greska?: string; prijava?: boolean; cenaRsd?: number | null; id?: string }> {
   const korisnik = await trenutniKorisnik();
   if (!korisnik) return { prijava: true, greska: "Prijavi se da bi rezervisao termin." };
   const klub = await ucitajKlubPoSlugu(unos.slug);
@@ -77,5 +77,5 @@ export async function rezervisiOnline(unos: UnosOnline): Promise<{ greska?: stri
   // Remember the phone for the next booking (never verified, see decision 010).
   await pool.query(`update korisnici set telefon = $2 where id = $1`, [korisnik.id, telefon]);
   refresh();
-  return { cenaRsd };
+  return { cenaRsd, id: rezultat.id };
 }

@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { pool } from "@/lib/db";
 import { zahtevajVlasnika } from "@/lib/pristup";
 import { lepTelefon } from "@/lib/format";
+import { POGODNOSTI } from "@/lib/pogodnosti";
 import { kartica, naslov, oznaka, polje } from "@/components/ui";
 import { Obrazac } from "@/components/obrazac";
 import { VlasnikOkvir } from "../okvir";
@@ -81,6 +82,36 @@ async function Podesavanja() {
                 Jedna cena za ceo klub (Odluka 011). Termin od 90 minuta košta 1,5 sat. Cenu pojedinačne
                 rezervacije i dalje možeš da promeniš ručno.
               </p>
+              <label className="sm:col-span-2">
+                <span className={oznaka}>Opis za igrače</span>
+                <textarea
+                  name="opis"
+                  defaultValue={klub.opis ?? ""}
+                  rows={3}
+                  maxLength={600}
+                  placeholder="Četiri terena, dva pod krovom. Rekete možete da iznajmite na recepciji."
+                  className={`${polje} h-auto py-3 leading-relaxed`}
+                />
+              </label>
+              <fieldset className="sm:col-span-2">
+                <legend className={oznaka}>Šta klub nudi</legend>
+                <div className="flex flex-wrap gap-2">
+                  {Object.entries(POGODNOSTI).map(([kljuc, naziv]) => (
+                    <label key={kljuc} className="cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="pogodnost"
+                        value={kljuc}
+                        defaultChecked={klub.pogodnosti.includes(kljuc)}
+                        className="peer sr-only"
+                      />
+                      <span className="inline-flex h-10 items-center rounded-full bg-surface2 px-4 text-sm font-semibold text-muted ring-1 ring-line transition-colors duration-200 peer-checked:bg-brand peer-checked:text-white peer-checked:ring-brand peer-focus-visible:outline-2 peer-focus-visible:outline-brand">
+                        {naziv}
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
             </div>
           </Obrazac>
           <p className="text-sm text-muted">
@@ -123,8 +154,8 @@ async function Podesavanja() {
                     const dan = i + 1;
                     const s = t.sati.find((x) => x.dan === dan);
                     return (
-                      <div key={dan} className="grid grid-cols-[auto_1fr_1fr] items-center gap-2 sm:grid-cols-[160px_140px_140px]">
-                        <label className="flex items-center gap-2 text-[15px] font-semibold">
+                      <div key={dan} className="grid grid-cols-2 items-center gap-2 sm:grid-cols-[160px_140px_140px]">
+                        <label className="col-span-2 flex items-center gap-2 text-[15px] font-semibold sm:col-span-1">
                           <input
                             type="checkbox"
                             name={`radi-${dan}`}
@@ -139,7 +170,7 @@ async function Podesavanja() {
                           name={`otvara-${dan}`}
                           defaultValue={s?.otvara ?? "08:00"}
                           aria-label={`${naziv}, otvara`}
-                          className={`${polje} h-11`}
+                          className={`${polje} h-11 min-w-0 px-3`}
                         />
                         <input
                           type="time"
@@ -147,7 +178,7 @@ async function Podesavanja() {
                           name={`zatvara-${dan}`}
                           defaultValue={s?.zatvara ?? "23:00"}
                           aria-label={`${naziv}, zatvara`}
-                          className={`${polje} h-11`}
+                          className={`${polje} h-11 min-w-0 px-3`}
                         />
                       </div>
                     );

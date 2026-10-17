@@ -13,20 +13,20 @@ export function DugmeOtkazi({ id }: { id: string }) {
       <button
         type="button"
         onClick={() => setPotvrda(true)}
-        className="h-11 self-start rounded-xl px-3 text-[15px] font-bold text-danger hover:bg-ns-bg"
+        className="inline-flex h-11 items-center rounded-full px-4 text-[15px] font-bold text-danger transition-colors duration-300 hover:bg-ns-bg"
       >
         Otkaži termin
       </button>
     );
   }
   return (
-    <div className="flex flex-col gap-2.5 rounded-xl bg-ns-bg p-3.5">
+    <div className="iskoci flex w-full flex-col gap-2.5 rounded-[20px] bg-ns-bg p-4">
       <div className="font-bold text-ns-fg">Otkazati termin? Teren postaje slobodan za druge.</div>
       <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
           onClick={() => setPotvrda(false)}
-          className="h-[46px] rounded-xl border border-line bg-surface text-[15px] font-semibold"
+          className="h-[46px] rounded-full bg-surface text-[15px] font-semibold ring-1 ring-line"
         >
           Ne, zadrži
         </button>
@@ -39,7 +39,7 @@ export function DugmeOtkazi({ id }: { id: string }) {
               if (r.greska) setGreska(r.greska);
             })
           }
-          className="h-[46px] rounded-xl bg-danger text-[15px] font-bold text-white disabled:opacity-60"
+          className="h-[46px] rounded-full bg-danger text-[15px] font-bold text-white disabled:opacity-60"
         >
           Da, otkaži
         </button>

@@ -15,6 +15,8 @@ export type Klub = {
   telefon: string | null;
   vremenskaZona: string;
   cenaPoSatuRsd: number | null;
+  opis: string | null;
+  pogodnosti: string[];
 };
 
 export type Teren = {
@@ -45,7 +47,7 @@ export type Rezervacija = {
 
 
 const KLUB_KOLONE = `id, naziv, slug, adresa, telefon, vremenska_zona as "vremenskaZona",
-  cena_po_satu_rsd as "cenaPoSatuRsd"`;
+  cena_po_satu_rsd as "cenaPoSatuRsd", opis, pogodnosti`;
 
 export async function ucitajKlubPoSlugu(slug: string): Promise<Klub | null> {
   const { rows } = await pool.query<Klub>(`select ${KLUB_KOLONE} from klubovi where slug = $1`, [slug]);

@@ -22,6 +22,13 @@
       "when": 1792226647714,
       "tag": "0002_prijava_i_cenovnik",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792237009719,
+      "tag": "0003_opis_i_pogodnosti",
+      "breakpoints": true
     }
   ]
 }

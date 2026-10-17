@@ -313,3 +313,27 @@ Claude je izabrao: A, uz promenu lozinki test naloga.
 
 Šta bi promenilo odluku:
 - Kad dođe prvi pravi klub. Tada prelazimo na B, da se test podaci ne mešaju sa pravim rezervacijama i ličnim podacima.
+
+## 013. Novi izgled i nove funkcije, po uzoru na Playtomic
+
+Datum: 2026-10-17
+
+Problem: Korisniku se ne sviđa kako sajt izgleda. Deluje kao običan sajt napravljen za jedan dan: ravne bele kartice, bez slika, bez pokreta, bez osećaja aplikacije. Želi da sajt izgleda i radi moderno i moćno, kao Playtomic.
+
+Opcije:
+- A) Novi izgled, iste funkcije. Prednost: brzo, ništa postojeće se ne kvari. Mana: ispod je isti sajt.
+- B) Novi izgled i nove funkcije kao Playtomic (profil igrača sa nivoom, traženje igrača za meč, kontrolna tabla vlasnika sa grafikonima, pretraga klubova). Prednost: stvarno deluje moćno. Mana: mnogo posla, a deo funkcija možda vlasnicima ne treba.
+- C) Korak po korak: prvo izgled celog sajta, pa nove funkcije jedna po jedna.
+
+Korisnik je predložio: B.
+
+Claude je izabrao: B, ali sa redosledom i bez funkcija koje rade samo kad ima mnogo klubova.
+- Slaže se da sam novi izgled nije dovoljan: korisnik želi da sajt i radi više, ne samo da lepše izgleda.
+- Playtomic je moćan delom zato što ima hiljade klubova i igrača. Funkcije kao "pretraga klubova" i "traži igrača za meč" su prazne dok postoji jedan klub i par igrača. Zato idu kasnije.
+- Prvo ide ono što koristi vlasniku, jer vlasnik plaća pretplatu (Odluka 003): kontrolna tabla sa zaradom, popunjenošću i najaktivnijim igračima.
+- Zatim ono što igraču daje osećaj aplikacije: stranica kluba sa slikama i sadržajem, tok rezervacije u koracima sa animacijama, profil igrača sa istorijom i statistikom.
+- Ovo je Claudeova procena redosleda, ne činjenica o tome šta vlasnici žele. Razgovor sa vlasnicima je i dalje otvoren.
+
+Šta bi promenilo odluku:
+- Ako vlasnici kažu da im grafikoni ne trebaju, a da im je važnije nešto drugo (na primer podsetnici igračima).
+- Ako se pojavi drugi i treći klub. Tada pretraga klubova i traženje igrača dobijaju smisao.

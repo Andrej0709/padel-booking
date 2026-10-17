@@ -1,55 +1,70 @@
 @import "tailwindcss";
 
-/* Colors from the Claude Design file (padel-booking, dizajn v1).
+/* Colors start from the Claude Design file (padel-booking, dizajn v1) and were made deeper
+   and softer for the redesign (decision 013): night blue for hero areas, soft shadows
+   instead of hard lines.
    Always light, even when the computer or phone is set to dark mode.
    Dark only when the person picks it with the theme button. */
 :root {
-  --bg: oklch(0.975 0.005 240);
+  --bg: oklch(0.972 0.005 250);
   --surface: #ffffff;
-  --surface2: oklch(0.955 0.007 245);
-  --ink: oklch(0.23 0.03 255);
-  --muted: oklch(0.48 0.02 255);
-  --line: oklch(0.89 0.01 250);
-  --line2: oklch(0.94 0.006 250);
-  --brand: oklch(0.5 0.15 250);
-  --brand-deep: oklch(0.44 0.14 252);
-  --lime: oklch(0.9 0.19 125);
+  --surface2: oklch(0.958 0.007 250);
+  --ink: oklch(0.21 0.032 262);
+  --muted: oklch(0.5 0.02 258);
+  --line: oklch(0.905 0.009 252);
+  --line2: oklch(0.945 0.006 250);
+  --brand: oklch(0.53 0.17 256);
+  --brand-deep: oklch(0.44 0.15 258);
+  --lime: oklch(0.9 0.2 125);
   --lime-ink: oklch(0.3 0.08 130);
-  --conf-bg: oklch(0.5 0.15 250);
+  --night: oklch(0.2 0.05 262);
+  --night2: oklch(0.26 0.06 262);
+  --night-ink: oklch(0.97 0.01 250);
+  --conf-bg: oklch(0.53 0.17 256);
   --conf-fg: #ffffff;
   --played-bg: oklch(0.93 0.05 160);
-  --played-fg: oklch(0.36 0.08 160);
-  --ns-bg: oklch(0.94 0.045 25);
-  --ns-fg: oklch(0.45 0.16 25);
-  --danger: oklch(0.55 0.2 25);
-  --now: oklch(0.6 0.22 25);
-  --hover: oklch(0.95 0.035 250);
-  --closed-a: oklch(0.94 0.004 250);
-  --closed-b: oklch(0.9 0.006 250);
+  --played-fg: oklch(0.38 0.09 160);
+  --ns-bg: oklch(0.95 0.04 25);
+  --ns-fg: oklch(0.47 0.16 25);
+  --danger: oklch(0.56 0.2 25);
+  --now: oklch(0.62 0.22 25);
+  --hover: oklch(0.95 0.035 252);
+  --closed-a: oklch(0.945 0.004 250);
+  --closed-b: oklch(0.91 0.006 250);
+  --senka-1: 0 1px 2px rgba(16, 24, 48, 0.05);
+  --senka-2: 0 1px 2px rgba(16, 24, 48, 0.04), 0 10px 30px -12px rgba(16, 24, 48, 0.14);
+  --senka-3: 0 2px 6px rgba(16, 24, 48, 0.06), 0 30px 70px -20px rgba(16, 24, 48, 0.3);
+  --staklo: rgba(255, 255, 255, 0.72);
   color-scheme: light;
 }
 
 :root[data-tema="tamna"] {
-  --bg: oklch(0.16 0.02 255);
-  --surface: oklch(0.2 0.022 255);
-  --surface2: oklch(0.25 0.024 255);
-  --ink: oklch(0.96 0.005 250);
-  --muted: oklch(0.72 0.02 250);
-  --line: oklch(0.31 0.022 255);
-  --line2: oklch(0.26 0.02 255);
-  --brand: oklch(0.64 0.15 250);
-  --brand-deep: oklch(0.36 0.12 252);
+  --bg: oklch(0.155 0.022 262);
+  --surface: oklch(0.2 0.025 262);
+  --surface2: oklch(0.245 0.027 262);
+  --ink: oklch(0.96 0.006 250);
+  --muted: oklch(0.72 0.02 252);
+  --line: oklch(0.3 0.025 262);
+  --line2: oklch(0.255 0.022 262);
+  --brand: oklch(0.66 0.15 254);
+  --brand-deep: oklch(0.38 0.13 258);
   --lime-ink: oklch(0.28 0.08 130);
-  --conf-bg: oklch(0.55 0.15 250);
+  --night: oklch(0.13 0.03 262);
+  --night2: oklch(0.19 0.04 262);
+  --conf-bg: oklch(0.56 0.15 256);
   --played-bg: oklch(0.32 0.06 160);
   --played-fg: oklch(0.9 0.08 160);
   --ns-bg: oklch(0.33 0.08 25);
   --ns-fg: oklch(0.9 0.07 25);
-  --danger: oklch(0.66 0.19 25);
-  --now: oklch(0.68 0.2 25);
-  --hover: oklch(0.28 0.05 250);
-  --closed-a: oklch(0.22 0.015 255);
-  --closed-b: oklch(0.26 0.015 255);
+  --danger: oklch(0.68 0.19 25);
+  --now: oklch(0.7 0.2 25);
+  --hover: oklch(0.28 0.05 256);
+  --closed-a: oklch(0.21 0.015 262);
+  --closed-b: oklch(0.25 0.015 262);
+  --senka-1: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --senka-2: 0 1px 2px rgba(0, 0, 0, 0.25), 0 12px 32px -12px rgba(0, 0, 0, 0.5);
+  --senka-3: 0 2px 6px rgba(0, 0, 0, 0.3), 0 30px 70px -20px rgba(0, 0, 0, 0.7);
+  --staklo: rgba(28, 34, 52, 0.72);
   color-scheme: dark;
 }
 
@@ -65,6 +80,10 @@
   --color-brand-deep: var(--brand-deep);
   --color-lime: var(--lime);
   --color-lime-ink: var(--lime-ink);
+  --color-night: var(--night);
+  --color-night2: var(--night2);
+  --color-night-ink: var(--night-ink);
+  --color-staklo: var(--staklo);
   --color-conf-bg: var(--conf-bg);
   --color-conf-fg: var(--conf-fg);
   --color-played-bg: var(--played-bg);
@@ -74,6 +93,11 @@
   --color-danger: var(--danger);
   --color-now: var(--now);
   --color-hover: var(--hover);
+  --shadow-meko: var(--senka-1);
+  --shadow-kartica: var(--senka-2);
+  --shadow-plutajuce: var(--senka-3);
+  --ease-glatko: cubic-bezier(0.32, 0.72, 0, 1);
+  --ease-opruga: cubic-bezier(0.34, 1.4, 0.64, 1);
   --font-sans: var(--font-barlow), system-ui, sans-serif;
   --font-naslov: var(--font-barlow-semi), var(--font-barlow), system-ui, sans-serif;
 }
@@ -83,14 +107,136 @@ body {
   color: var(--ink);
   font-family: var(--font-barlow), system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
+  -webkit-tap-highlight-color: transparent;
 }
 
 :focus-visible {
-  outline: 2px solid oklch(0.62 0.15 250);
-  outline-offset: 1px;
+  outline: 2px solid oklch(0.62 0.15 254);
+  outline-offset: 2px;
 }
 
 /* Hatched background for hours when a court is closed. */
 .zatvoreno {
   background: repeating-linear-gradient(135deg, var(--closed-a) 0 6px, var(--closed-b) 6px 12px);
+}
+
+/* Night blue hero areas: a soft glow of brand blue and a hint of lime. */
+.nocno-nebo {
+  background:
+    radial-gradient(60% 80% at 85% 0%, oklch(0.5 0.17 256 / 0.55), transparent 70%),
+    radial-gradient(40% 60% at 0% 100%, oklch(0.9 0.2 125 / 0.12), transparent 70%),
+    var(--night);
+  color: var(--night-ink);
+}
+
+/* Motion (decision 013). Everything moves with the same soft curve.
+   Elements fade up when the page opens; --i staggers them one after another. */
+@keyframes ulaz {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes iskoci {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes izvuci {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes zatamni {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes puls {
+  0% {
+    box-shadow: 0 0 0 0 oklch(0.9 0.2 125 / 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 8px oklch(0.9 0.2 125 / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 oklch(0.9 0.2 125 / 0);
+  }
+}
+@keyframes raste {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: none;
+  }
+}
+@keyframes svetluca {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+.ulaz {
+  animation: ulaz 0.7s var(--ease-glatko) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+.iskoci {
+  animation: iskoci 0.45s var(--ease-glatko) both;
+}
+.izvuci {
+  animation: izvuci 0.5s var(--ease-glatko) both;
+}
+.zatamni {
+  animation: zatamni 0.3s ease-out both;
+}
+.puls {
+  animation: puls 2s infinite;
+}
+.raste {
+  transform-origin: bottom;
+  animation: raste 0.8s var(--ease-glatko) both;
+  animation-delay: calc(var(--i, 0) * 25ms);
+}
+/* Placeholder shimmer while a page loads. */
+.ucitava {
+  background: linear-gradient(90deg, var(--surface2) 30%, var(--line2) 50%, var(--surface2) 70%) 0 0 / 200% 100%;
+  animation: svetluca 1.4s linear infinite;
+}
+
+/* Hides the scrollbar of horizontal strips (days, filters) but keeps them scrollable. */
+.bez-trake {
+  scrollbar-width: none;
+}
+.bez-trake::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

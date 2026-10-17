@@ -25,8 +25,10 @@ delete from rezervacije where teren_id in (
 delete from klubovi where naziv = $1;
 
 with klub as (
-  insert into klubovi (naziv, slug, adresa, telefon, cena_po_satu_rsd)
-  values ($1, 'padel-centar', 'Primer ulica 1, Beograd', '+381110000000', 3200)
+  insert into klubovi (naziv, slug, adresa, telefon, cena_po_satu_rsd, opis, pogodnosti)
+  values ($1, 'padel-centar', 'Primer ulica 1, Beograd', '+381110000000', 3200,
+          'Četiri terena sa panoramskim staklom, dva pod krovom i dva napolju. Reketi i loptice na recepciji, posle meča kafa na terasi.',
+          array['parking', 'svlacionica', 'tus', 'kafic', 'oprema', 'osvetljenje'])
   returning id
 ),
 vlasnik as (
@@ -60,7 +62,19 @@ from klub, (values
   ('Ana',    '+381645555555'),
   ('Milan',  '+381646666666'),
   ('Luka',   '+381647777777'),
-  ('Ivana',  '+381648888888')
+  ('Ivana',  '+381648888888'),
+  ('Petar',  '+381651010101'),
+  ('Milica', '+381652020202'),
+  ('Vuk',    '+381653030303'),
+  ('Teodora','+381654040404'),
+  ('Đorđe',  '+381655050505'),
+  ('Sara',   '+381656060606'),
+  ('Aleksa', '+381657070707'),
+  ('Nina',   '+381658080808'),
+  ('Uroš',   '+381659090909'),
+  ('Katarina','+381601212121'),
+  ('Filip',  '+381602323232'),
+  ('Maja',   '+381603434343')
 ) as v(ime, telefon);
 
 -- Bookings are placed relative to today (in Belgrade), so the schedule always has something to show.
@@ -92,6 +106,39 @@ cross join lateral (
   select ((now() at time zone k.vremenska_zona)::date + v.dan + v.vreme::time)
          at time zone k.vremenska_zona as pocetak
 ) p;
+
+-- A busy history for the owner's overview: the last 35 days and the next 6, on a 90-minute grid.
+-- Evenings and weekends fill up more, like in a real club. The grid is the same every run
+-- (hash of court, day and slot), and rows that would overlap the bookings above are skipped.
+with k as (select * from klubovi where naziv = $1),
+spisak as (select array_agg(id order by ime) as ids from igraci where klub_id = (select id from k)),
+mesta as (
+  select t.id as teren_id, d, s,
+         (hashtext(t.naziv || ':' || d || ':' || s)::bigint & 2147483647) as h,
+         ((now() at time zone k.vremenska_zona)::date + d
+           + case when t.naziv = 'Teren 4' then time '09:00' else time '08:00' end
+           + make_interval(mins => s * 90)) at time zone k.vremenska_zona as pocetak,
+         case when t.naziv = 'Teren 4' then 7 else 9 end as poslednji
+  from k
+  join tereni t on t.klub_id = k.id
+  cross join generate_series(-35, 6) as d
+  cross join generate_series(0, 9) as s
+  where d <> 0
+)
+insert into rezervacije (teren_id, igrac_id, pocetak, kraj, cena_rsd, status, izvor)
+select m.teren_id, spisak.ids[1 + m.h % array_length(spisak.ids, 1)],
+       m.pocetak, m.pocetak + interval '90 minutes', 4800,
+       (case when m.pocetak > now() then 'potvrdjena'
+             when m.h % 29 = 0 then 'nedolazak'
+             else 'odigrana' end)::status_rezervacije,
+       (case when m.h % 5 < 2 then 'online' else 'telefon' end)::izvor_rezervacije
+from mesta m, spisak
+where m.s <= m.poslednji
+  and (m.h / 7) % 100 <
+      (case when m.s >= 6 then 78 when m.s >= 4 then 42 else 22 end)
+      + (case when extract(isodow from m.pocetak) >= 6 then 14 else 0 end)
+      - (case when m.d > 0 then m.d * 9 else 0 end)
+on conflict do nothing;
 
 commit;
 `;

@@ -299,7 +299,7 @@ footer { font-size: 13px; color: var(--muted); }
 
   <section class="model" id="model">
     <div class="model-head">
-      <span class="eyebrow">Temelj sistema · Odluke 005, 006, 009, 010 i 011 · tabele postoje u bazi</span>
+      <span class="eyebrow">Temelj sistema · Odluke 005, 006, 009, 010, 011 i 013 · tabele postoje u bazi</span>
       <h2>Model podataka</h2>
       <p>Tabele u bazi i veze između njih. Klikni na tabelu da vidiš šta čuva i zašto postoji. Plavo označena polja su ona oko kojih smo donosili odluke.</p>
     </div>
@@ -780,9 +780,9 @@ document.addEventListener("keydown", (e) => {
 });
 
 const ER = {
-  klubovi: { x: 30, y: 30, fields: ["id", "naziv", "slug", "adresa", "telefon", "cena/sat"], keys: ["slug", "cena/sat"],
+  klubovi: { x: 30, y: 30, fields: ["id", "naziv", "slug", "adresa", "telefon", "cena/sat", "opis", "pogodnosti"], keys: ["slug", "cena/sat", "pogodnosti"],
     what: "Jedan red je jedan klub.",
-    why: "Sistem od prvog dana podržava više klubova. Svaki drugi podatak (tereni, igrači, vlasnici) zna kom klubu pripada, pa klub vidi samo svoje. Slug je kratko ime u adresi stranice za igrače (/k/padel-centar). Cena po satu je jedna za ceo klub (Odluka 011)." },
+    why: "Sistem od prvog dana podržava više klubova. Svaki drugi podatak (tereni, igrači, vlasnici) zna kom klubu pripada, pa klub vidi samo svoje. Slug je kratko ime u adresi stranice za igrače (/k/padel-centar). Cena po satu je jedna za ceo klub (Odluka 011). Opis i pogodnosti (parking, tuš, kafić...) vlasnik upisuje u Podešavanjima, a igrači ih vide na stranici kluba (Odluka 013)." },
   vlasnici: { x: 30, y: 300, fields: ["id", "klub", "ime", "email", "uloga"], keys: ["uloga"],
     what: "Tim kluba: vlasnik i recepcija. Ko je ovde upisan, ulazi u deo za vlasnika.",
     why: "Pristup se daje po emailu (Odluka 009): vlasnik doda email u Tim, a osoba se prijavi sa tim emailom, lozinkom ili Google-om. Prijava sama nikad ne pravi člana tima. Uloga određuje šta ko sme: recepcija vidi raspored i igrače, a samo vlasnik menja podešavanja i tim." },
@@ -807,7 +807,7 @@ const ER = {
 };
 const ER_LINKS = [
   { d: "M230,80 H350", lx: 290, ly: 72 },
-  { d: "M130,208 V300", lx: 138, ly: 256, anchor: "start" },
+  { d: "M130,252 V300", lx: 138, ly: 280, anchor: "start" },
   { d: "M550,80 H670", lx: 610, ly: 72 },
   { d: "M450,186 V300", lx: 458, ly: 246, anchor: "start" },
   { d: "M670,360 H550", lx: 610, ly: 352, label: "više ← 1" },

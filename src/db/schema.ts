@@ -39,6 +39,10 @@ export const klubovi = pgTable("klubovi", {
   vremenskaZona: text("vremenska_zona").notNull().default("Europe/Belgrade"),
   // One price per hour for the whole club. See decision 011.
   cenaPoSatuRsd: integer("cena_po_satu_rsd"),
+  // Shown on the club page for players (decision 013).
+  opis: text("opis"),
+  // Keys from POGODNOSTI in src/lib/pogodnosti.ts, for example "parking" or "tus".
+  pogodnosti: text("pogodnosti").array().notNull().default(sql`'{}'::text[]`),
   kreirano: kreirano(),
 });
 

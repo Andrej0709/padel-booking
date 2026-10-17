@@ -7,7 +7,7 @@ Sistem za online zakazivanje termina za lokalne biznise u Srbiji. Izabrana niša
 ## Gde smo stali (2026-10-17)
 
 Urađeno:
-- Odluke 001–012 su u `ODLUKE.md` (niša padel, prvo raspored pa online rezervacije, pretplata po aktivnom terenu, Next.js + Vercel + Neon, početak i kraj termina, igrač po broju telefona, raspored kao tabla, ceo sajt odjednom, prijava emailom ili Google-om, obavezan nalog za online rezervaciju, jedna cena po satu, jedna baza za računar i sajt na internetu).
+- Odluke 001–013 su u `ODLUKE.md` (niša padel, prvo raspored pa online rezervacije, pretplata po aktivnom terenu, Next.js + Vercel + Neon, početak i kraj termina, igrač po broju telefona, raspored kao tabla, ceo sajt odjednom, prijava emailom ili Google-om, obavezan nalog za online rezervaciju, jedna cena po satu, jedna baza za računar i sajt na internetu).
 - Ceo sajt u stilu Claude Design dizajna (boje, slova Barlow, znak, svetla i tamna tema). Dizajn je stigao kao zip i nije deo projekta.
 - Igrač: `/k/[slug]` (stranica kluba i online rezervacija), `/moje-rezervacije` (otkazivanje do 12 sati pre), `/prijava`, `/registracija`, `/zaboravljena-lozinka`, `/nova-lozinka`. Početna strana vodi na prvi klub.
 - Vlasnik: `/vlasnik` (raspored, tabla), `/vlasnik/igraci` i profil igrača, `/vlasnik/podesavanja` (klub, cena, tereni, radno vreme), `/vlasnik/tim`. Recepcija ne vidi podešavanja i tim.
@@ -15,6 +15,14 @@ Urađeno:
 - Sve provereno u browseru (računar i telefon). Test preklapanja prolazi i više ne zavisi od datuma u primer podacima.
 - Mapa sistema: `vizuelno/mapa-sistema.html`, objavljena na https://claude.ai/artifact/PnjEQsJaUd6ETn9dbNZNFy
 - Kod je na GitHubu: https://github.com/Andrej0709/padel-booking (grana main).
+
+Redizajn po uzoru na Playtomic (Odluka 013), provereno u browseru (računar, telefon, tamna tema):
+- Novi izgled: boje, meke senke, pokreti (`globals.css`, `components/ui.ts`), ikonice `@phosphor-icons/react`.
+- Igrač: stranice su u grupi `src/app/(igrac)` sa zajedničkim okvirom (plutajuća traka gore, dugmići dole na telefonu). Stranica kluba ima vrh sa crtežom terena, opis, pogodnosti, terene i rezervaciju u tri koraka. `/moje-rezervacije` (sledeći meč, dodaj u kalendar, otkazivanje), `/profil` (statistika igrača, nedelje zaredom, ime i telefon).
+- `/api/kalendar/[id]` daje termin kao `.ics` fajl, samo nalogu koji ga je rezervisao.
+- Vlasnik: meni levo na računaru, dugmići dole na telefonu. Kontrolna tabla `/vlasnik/pregled` (samo vlasnik): zarada, popunjenost, rezervacije, nedolasci, mapa gužve, tereni, danas, najaktivniji igrači, period 7/30/90 dana (`src/lib/statistika.ts`).
+- Klub ima opis i pogodnosti (migracija 0003), vlasnik ih menja u Podešavanjima.
+- Primer podaci imaju 20 igrača i oko 700 rezervacija (poslednjih 35 dana i narednih 6).
 
 Sledeći korak: nije izabran. Kandidati: Google prijava (korisnik pravi Google Cloud projekat), servis za slanje emaila, objavljivanje na Vercelu, razgovor sa vlasnicima uz gotov sajt.
 
@@ -49,7 +57,10 @@ Vidi Odluku 004 u `ODLUKE.md`.
 - Ko sme šta: `src/lib/pristup.ts` (`zahtevajClana`, `zahtevajVlasnika`). Svaka stranica i svaka server akcija za vlasnika proverava ponovo. Član tima je onaj čiji je email u tabeli `vlasnici`.
 - Emailovi (`src/lib/email.ts`) se u razvoju ispisuju u log servera sa oznakom `[EMAIL]`.
 - Kod koji radi u browseru ne sme da uvozi `src/lib/raspored.ts` ili `db.ts` (vuku bazu u browser i ruše stranicu). Za datume u browseru služi `src/lib/kalendar.ts`, za prikaz `src/lib/format.ts`.
-- `npm run db:dodaj-clana -- email "Ime" vlasnik` daje emailu pristup primer klubu. Test nalozi su opisani na vrhu `scripts/seed.mjs`. Njihova lozinka je samo u `.env.local` (TEST_LOZINKA), jer je GitHub repozitorijum javan; `npm run db:test-lozinke` je postavlja.
+- `npm run db:dodaj-clana -- email "Ime" vlasnik` daje emailu pristup primer klubu. Test nalozi su opisani na vrhu `scripts/seed.mjs`. Njihova lozinka je samo u `.env.local` (TEST_LOZINKA), jer je GitHub repozitorijum javan; `npm run db:test-lozinke` je postavlja. Claude za proveru u browseru koristi svoj nalog claude@primer.rs (vlasnik primer kluba, lozinka u `.env.local` kao CLAUDE_TEST_LOZINKA).
+- Ikonice: u server komponentama uvoz iz `@phosphor-icons/react/ssr`, u komponentama sa `"use client"` iz `@phosphor-icons/react`.
+- Klijentska komponenta koja čita adresu stranice (`usePathname`) mora biti u `<Suspense>`, inače Next.js javlja grešku (uključen je `cacheComponents`).
+- Element u gridu sa širokim sadržajem (mapa gužve, tabla) treba `min-w-0`, inače na telefonu raširi celu stranicu i donji meni ispadne van ekrana.
 - Ako dev server prijavi `ENOENT ... build-manifest.json`, ugasiti ga, obrisati `.next/dev` i pokrenuti ponovo.
 
 ## Dogovor o načinu rada

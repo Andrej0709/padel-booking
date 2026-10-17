@@ -59,3 +59,13 @@ export function mnozina(n: number, jedan: string, dva: string, pet: string) {
   if (d >= 2 && d <= 4 && (s < 12 || s > 14)) return dva;
   return pet;
 }
+
+// "Marko Petrović" -> "MP", for round avatars.
+export function inicijali(ime: string) {
+  return ime
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((d) => d[0]?.toUpperCase())
+    .join("");
+}

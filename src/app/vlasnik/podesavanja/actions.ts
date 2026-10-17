@@ -5,6 +5,7 @@ import { DatabaseError } from "pg";
 import { pool } from "@/lib/db";
 import { zahtevajVlasnika } from "@/lib/pristup";
 import { normalizujTelefon } from "@/lib/telefon";
+import { jePogodnost } from "@/lib/pogodnosti";
 
 // Club settings. Only the owner may change them, not reception (see the system map).
 
@@ -21,10 +22,14 @@ export async function sacuvajKlub(_: Stanje, podaci: FormData): Promise<Stanje> 
   if (telefonUnos && !telefon) return { greska: "Broj telefona kluba nije ispravan." };
   const cena = cenaUnos === "" ? null : Number(cenaUnos);
   if (cena !== null && (!Number.isInteger(cena) || cena < 0)) return { greska: "Cena mora biti ceo broj dinara." };
+  const opis = String(podaci.get("opis") ?? "").trim().slice(0, 600);
+  const pogodnosti = podaci.getAll("pogodnost").map(String).filter(jePogodnost);
 
   await pool.query(
-    `update klubovi set naziv = $2, adresa = nullif($3, ''), telefon = $4, cena_po_satu_rsd = $5 where id = $1`,
-    [klub.id, naziv, adresa, telefon, cena],
+    `update klubovi set naziv = $2, adresa = nullif($3, ''), telefon = $4, cena_po_satu_rsd = $5,
+            opis = nullif($6, ''), pogodnosti = $7
+     where id = $1`,
+    [klub.id, naziv, adresa, telefon, cena, opis, pogodnosti],
   );
   refresh();
   return { poruka: "Sačuvano." };

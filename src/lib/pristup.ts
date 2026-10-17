@@ -36,7 +36,8 @@ export const trenutniClan = cache(async (): Promise<Clan | null> => {
   if (!korisnik || !korisnik.emailVerified) return null;
   const { rows } = await pool.query<{ ime: string; uloga: Clan["uloga"] } & Klub>(
     `select v.ime, v.uloga, k.id, k.naziv, k.slug, k.adresa, k.telefon,
-            k.vremenska_zona as "vremenskaZona", k.cena_po_satu_rsd as "cenaPoSatuRsd"
+            k.vremenska_zona as "vremenskaZona", k.cena_po_satu_rsd as "cenaPoSatuRsd",
+            k.opis, k.pogodnosti
      from vlasnici v join klubovi k on k.id = v.klub_id
      where lower(v.email) = lower($1)
      order by v.kreirano
