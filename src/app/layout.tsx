@@ -20,7 +20,8 @@ export const metadata: Metadata = {
 };
 
 // Applies the saved theme before the first paint, so the page never flashes the wrong colors.
-const temaSkripta = `(function(){try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}})()`;
+// The key changed when light became the default, so earlier dark choices are forgotten.
+const temaSkripta = `(function(){try{var t=localStorage.getItem("izabrana-tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (

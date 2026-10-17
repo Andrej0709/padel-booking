@@ -4,12 +4,11 @@
 export function PrekidacTeme({ mali = false }: { mali?: boolean }) {
   function promeni() {
     const koren = document.documentElement;
-    const sistemTamna = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const sada = koren.getAttribute("data-tema") ?? (sistemTamna ? "tamna" : "svetla");
+    const sada = koren.getAttribute("data-tema") ?? "svetla";
     const nova = sada === "tamna" ? "svetla" : "tamna";
     koren.setAttribute("data-tema", nova);
     try {
-      localStorage.setItem("tema", nova);
+      localStorage.setItem("izabrana-tema", nova);
     } catch {}
   }
   return (
