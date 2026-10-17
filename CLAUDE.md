@@ -4,6 +4,28 @@
 
 Sistem za online zakazivanje termina za lokalne biznise u Srbiji. Izabrana niša su padel i teniski tereni (vidi Odluku 001 u `ODLUKE.md`). Jezgro sistema se ipak pravi generički, preko pojma "resurs" (teren, a kasnije možda zaposleni ili radno mesto), da bi kasnije moglo da se proširi na druge niše.
 
+## Gde smo stali (2026-10-17)
+
+Urađeno:
+- Odluke 001–007 su u `ODLUKE.md` (niša padel, prvo raspored za vlasnika pa online rezervacije, mesečna pretplata po aktivnom terenu, Next.js + Vercel + Neon, početak i kraj termina, igrač po broju telefona, raspored kao tabla).
+- Next.js aplikacija povezana sa Neon bazom u Frankfurtu. `/api/zdravlje` radi.
+- 6 tabela u bazi, pravilo protiv preklapanja termina, primer klub "Padel Centar (primer)". Test preklapanja prolazi.
+- Prvi ekran: `/raspored` (početna strana vodi tamo). Tabla svih terena za jedan dan, polja od 30 minuta, klik na prazno polje upisuje rezervaciju primljenu telefonom (90 min podrazumevano), klik na rezervaciju menja status (odigrano, nije došao, otkaži). Nema prijave, prikazuje prvi klub iz baze. Primer rezervacije su u subotu 2026-10-24.
+- Mapa sistema: `vizuelno/mapa-sistema.html`, objavljena na https://claude.ai/artifact/PnjEQsJaUd6ETn9dbNZNFy
+- Kod je na GitHubu: https://github.com/Andrej0709/padel-booking (grana main).
+
+Sledeći korak: nije izabran. Kandidati: prijava vlasnika (veća odluka), cenovnik po dobu dana, ili online rezervacije za igrače.
+
+Otvoreno, za kasnije:
+- Objavljivanje na Vercelu i davanje lozinke baze Vercelu (Neon integracija).
+- Prijava vlasnika (auth) još nije izabrana. To je veća odluka i ide kroz proces iz ovog fajla.
+- Cenovnik (cena po terminu i dobu dana) još ne postoji kao tabela. Cena se sada samo upisuje na rezervaciju.
+- Podsetnici: proveriti ograničenja Vercel cron-a.
+- Neon MCP server je instaliran, ali korisnik nije prijavljen (`/mcp` u `claude` terminalu). Nije neophodan.
+- Korisnik treba da porazgovara sa vlasnicima klubova: koliko poziva dnevno, koliko nedolazaka, kako vode raspored, šta ih nervira, rade li cele godine.
+- U konzoli se pojavljuje upozorenje drajvera `pg` o `sslmode` iz DATABASE_URL. Bezopasno, ali traži odluku pre nadogradnje na `pg` v9.
+- Ime brenda nije izabrano. Radni naziv je `padel-booking`.
+
 ## Tehnologija
 
 Vidi Odluku 004 u `ODLUKE.md`.

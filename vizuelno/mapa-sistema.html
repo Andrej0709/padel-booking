@@ -337,6 +337,7 @@ footer { font-size: 13px; color: var(--muted); }
       <div><dt>Zahtev (request)</dt><dd>Poruka koju frontend šalje serveru, na primer "koji termini su slobodni?".</dd></div>
       <div><dt>Odgovor (response)</dt><dd>Poruka koju server vraća. Uvek ima statusni kod koji kaže kako je prošlo.</dd></div>
       <div><dt>Statusni kod</dt><dd>Broj u odgovoru. 200 znači "u redu", 201 "napravljeno", 409 "sukob, neko te je pretekao".</dd></div>
+      <div><dt>Server akcija</dt><dd>Funkcija na serveru koju obrazac na stranici pokreće direktno, bez posebne adrese. U Network tabu se vidi kao POST na istu stranicu. Tako radi upis rezervacije u rasporedu.</dd></div>
       <div><dt>GET i POST</dt><dd>Vrsta zahteva. GET traži podatke ("daj mi"). POST pravi nešto novo ("napravi rezervaciju").</dd></div>
       <div><dt>API</dt><dd>Spisak vrata kroz koja programi razgovaraju jedni sa drugima. Telefon razgovara sa serverom preko API-ja, a radnik sa Viberom preko Viber-ovog API-ja.</dd></div>
       <div><dt>Pozadinski radnik</dt><dd>Poseban program za spore poslove (slanje poruka, podsetnici), da server ne bi morao da čeka.</dd></div>
@@ -446,6 +447,32 @@ const SCENARIOS = [
     question: {
       q: "Telefon je već proverio da je termin u budućnosti pre slanja. Zašto server istu stvar proverava ponovo u koraku 3?",
       a: "Provera na telefonu postoji zbog udobnosti: igrač odmah vidi grešku, bez čekanja. Provera na serveru postoji zbog sigurnosti: telefon pripada igraču i neko može da ga natera da pošalje bilo šta, na primer rezervaciju za juče ili za teren koji ne postoji. Server je jedino mesto kom sistem veruje."
+    }
+  },
+  {
+    label: "Vlasnik upisuje poziv",
+    base: () => makeDB(),
+    netEmpty: "Još nema zahteva.",
+    steps: [
+      { active: ["vlasnik"], title: "Igrač zove klub",
+        body: "Petar zove i pita za subotu oko pola sedam. Vlasnik na tabli rasporeda vidi da je Teren 1 slobodan od 18:30 i klikne to prazno polje. Otvori se prozor sa već upisanim terenom, početkom 18:30 i trajanjem 90 minuta. Vlasnik dopiše ime i broj telefona." },
+      { move: ["vlasnik", "server"], title: "Obrazac ide na server",
+        body: "Klik na \"Upiši\" šalje POST zahtev. Ovde nema posebne adrese kao /api/rezervacije: Next.js obrazac šalje podatke na istu stranicu, a server zna koju funkciju da pokrene. To se zove server akcija.",
+        ops: [{ t: "net", key: "v", m: "POST", p: "/raspored?datum=…", who: "Vlasnik upisuje Petra, Teren 1, sub 18:30" }] },
+      { active: ["server"], title: "Server proverava podatke",
+        body: "Da li je upisano ime? Da li je broj ispravan? Broj \"064 777 8888\" server pretvara u +381647778888, da bi isti igrač uvek imao isti zapis. Na kraju pita bazu da li Teren 1 subotom radi od 18:30 do 20:00." },
+      { move: ["server", "baza"], title: "Igrač i rezervacija u jednom potezu",
+        body: "Server bazi pošalje jednu naredbu: nađi igrača po broju telefona (ili ga napravi) i upiši rezervaciju. Baza proveri pravilo o preklapanju. Nikolin termin se završava u 18:30, a kraj se ne računa, pa novi termin prolazi.",
+        ops: [{ t: "add", table: "rezervacije", row: { id: 1045, br: "#1045", teren: "Teren 1", vreme: "sub 18:30–20:00", igrac: "Petar" } }] },
+      { move: ["baza", "server"], title: "Baza potvrđuje",
+        body: "Upis je prošao. Da je teren bio zauzet, baza bi odbila ceo potez, pa ne bi ostao ni novi igrač bez rezervacije. Vlasnik bi tada dobio poruku \"Teren je već zauzet\", a ono što je ukucao ostaje u prozoru." },
+      { move: ["server", "vlasnik"], title: "Tabla se sama osveži",
+        body: "Odgovor nosi kod 200 i odmah i novi izgled table. Prozor se zatvori, a Petrov blok se pojavi na Terenu 1. Stranica se ne učitava ponovo, pa vlasnik ostaje na istom mestu.",
+        ops: [{ t: "netStatus", key: "v", s: "200 OK" }] }
+    ],
+    question: {
+      q: "Danas vlasnik upiše Petra kao \"064 777 8888\", a sledeće nedelje recepcioner ukuca \"+381 64 777 8888\". Koliko igrača sistem vidi i zašto je to važno?",
+      a: "Jednog. Server oba oblika pretvori u +381647778888, a baza dozvoljava samo jednog igrača po broju u klubu. To je važno zbog istorije: ako Petar dva puta ne dođe, oba nedolaska stoje uz istog igrača, pa klub vidi obrazac i može da traži kaparu. Da su to dva igrača, svaki bi imao čist dosije."
     }
   },
   {

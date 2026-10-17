@@ -170,3 +170,30 @@ Claude je izabrao: C.
 
 Šta bi promenilo odluku:
 - Ako klubovi žele zajedničku "crnu listu" igrača koji ne dolaze. To bi tražilo zajedničke igrače i pažljivu proveru propisa o zaštiti podataka.
+
+## 007. Izgled rasporeda za vlasnika
+
+Datum: 2026-10-17
+
+Problem: Prvi pravi ekran je dnevni raspored terena. Vlasnik na njemu treba da vidi ko je zauzeo koji termin i da brzo upiše rezervaciju dok igrač čeka na telefonu. Treba izabrati kako ekran izgleda.
+
+Opcije:
+- A) Tabla: tereni su kolone, vreme ide odozgo nadole, rezervacije su obojeni blokovi. Klik na prazno polje otvara upis. Prednost: ceo dan svih terena na jednom pogledu, liči na papirni raspored. Mana: na uskom ekranu telefona sa mnogo terena postaje tesno.
+- B) Lista po terenu: za svaki teren spisak termina i slobodnih rupa. Prednost: odlično radi na telefonu. Mana: za pitanje "ima li nešto slobodno u 19h?" treba pregledati više lista.
+- C) Brzi unos: obrazac na vrhu (ko, kad, koliko dugo), sistem sam nađe slobodan teren, ispod je kratak spisak. Prednost: najbrže dok igrač čeka na vezi. Mana: vlasnik ne vidi celu sliku dana.
+
+Korisnik je predložio: A. Vizuelno najlepše i najpreglednije, i za vlasnika i za igrača.
+
+Claude je izabrao: A.
+- Najčešće pitanje na telefonu je "imate li nešto u 19h?". Na tabli se odgovor vidi jednim pogledom preko svih terena, bez traženja.
+- Tabla direktno pokazuje i rupe između termina (npr. 30 minuta koji niko ne može da iskoristi). To je izgubljen novac koji se u listi ne primećuje.
+- Klubovi koji vode raspored na papiru ili tabli na zidu već razmišljaju u ovom obliku, pa nema učenja.
+- Napomena uz korisnikovo rezonovanje: ovaj ekran je samo za vlasnika. Igrač kasnije dobija svoj ekran za online rezervacije. On može da liči na tablu, ali ne sme da pokazuje imena i brojeve drugih igrača, samo "slobodno" i "zauzeto".
+
+Male odluke uz ovu (bez posebnog procesa):
+- Ekran za sada nema prijavu i prikazuje primer klub. Radi samo na računaru korisnika, dok se ne izabere prijava vlasnika.
+- Tabla je podeljena na polja od 30 minuta. Podrazumevana dužina termina je 90 minuta, uz izbor 60 i 120.
+
+Šta bi promenilo odluku:
+- Ako vlasnici raspored vode uglavnom na telefonu, a imaju 6 i više terena. Tada tabla postaje tesna i telefon bi dobio prikaz u obliku liste (B), a računar zadržao tablu.
+- Ako se pokaže da vlasnik skoro nikad ne gleda raspored, nego samo upisuje pozive. Tada bi brzi unos (C) postao glavni deo ekrana.
