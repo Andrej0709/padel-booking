@@ -1,6 +1,18 @@
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { prviKlub } from "@/lib/raspored";
 
-// The owner's schedule is the only screen for now.
+// No sales page yet: the home page opens the example club.
 export default function Home() {
-  redirect("/raspored");
+  return (
+    <Suspense>
+      <Preusmeri />
+    </Suspense>
+  );
+}
+
+async function Preusmeri() {
+  const klub = await prviKlub();
+  redirect(klub ? `/k/${klub.slug}` : "/prijava");
+  return null;
 }

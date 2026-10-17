@@ -197,3 +197,99 @@ Male odluke uz ovu (bez posebnog procesa):
 Šta bi promenilo odluku:
 - Ako vlasnici raspored vode uglavnom na telefonu, a imaju 6 i više terena. Tada tabla postaje tesna i telefon bi dobio prikaz u obliku liste (B), a računar zadržao tablu.
 - Ako se pokaže da vlasnik skoro nikad ne gleda raspored, nego samo upisuje pozive. Tada bi brzi unos (C) postao glavni deo ekrana.
+
+## 008. Ceo sajt odjednom ili stranica po stranicu
+
+Datum: 2026-10-17
+
+Problem: Iz Claude Designa postoji dizajn za ceo proizvod (raspored, upis, detalji, profil igrača, online rezervacija), a radi samo jedan ekran. Treba odlučiti da li se sada prave sve stranice ili jedna po jedna.
+
+Opcije:
+- A) Ceo sajt odjednom, sve stvarno radi (vlasnik: prijava, raspored, igrači, podešavanja; igrač: stranica kluba, online rezervacija). Prednost: vidi se ceo proizvod i može se pokazati vlasnicima. Mana: neke stranice traže odluke koje još nisu donete.
+- B) Ceo sajt kao skelet: sve stranice u konačnom izgledu, ali neodlučeni delovi prikazuju primer podatke i oznaku "nacrt". Prednost: najbrže se vidi celina. Mana: lako je pomešati "izgleda gotovo" sa "jeste gotovo".
+- C) Stranica po stranicu, svaka sa odlukom pre gradnje. Prednost: sve što postoji zaista radi. Mana: dugo se ne vidi celina.
+
+Korisnik je predložio: A. Tako je pravio i Adronis: prvo ceo sajt, pa nadogradnja. Kad se vidi ceo proizvod, lakše je odlučivati i lakše je pokazati ga drugima.
+
+Claude je izabrao: A, uz dva uslova. Claude je ranije predlagao C, ali je korisnikov argument jači: celina se lakše procenjuje i lakše pokazuje vlasnicima klubova.
+- Uslov 1: pre gradnje se donose tri odluke koje sajt traži (prijava vlasnika, potvrda igrača kod online rezervacije, cenovnik). U sistemu za rezervacije sve stranice pišu u istu tabelu, pa loše zamišljena stranica kvari podatke svima. Zato se te odluke ne donose potajno u kodu.
+- Uslov 2: sajt ostaje samo na korisnikovom računaru dok prijava vlasnika i potvrda igrača ne prorade. Bez prijave bi svako video imena i brojeve telefona igrača.
+
+Šta bi promenilo odluku:
+- Ako sajt treba pokazati vlasnicima pre nego što se tri odluke donesu. Tada B (skelet sa oznakom "nacrt").
+- Ako razgovori sa vlasnicima pokažu da online rezervacije nikome ne trebaju. Tada se deo za igrače odlaže.
+
+## 009. Prijava vlasnika
+
+Datum: 2026-10-17
+
+Problem: Deo za vlasnika prikazuje imena i brojeve telefona igrača, pa ga smeju videti samo ljudi iz kluba. Posle prijave sajt pamti osobu (sesija), da ne pita stalno.
+
+Opcije:
+- A) Email i lozinka. Prednost: svi znaju kako radi. Mana: lozinke se zaboravljaju, pa treba "zaboravljena lozinka" preko emaila; recepcioneri često dele jednu lozinku.
+- B) Link na email, bez lozinke. Prednost: nema lozinke koja se zaboravi ili ukrade. Mana: svaki ulaz na novom uređaju traži otvaranje emaila.
+- C) Prijava preko Google naloga. Prednost: jedan klik, bezbednost brine Google. Mana: ne mora svako imati Google nalog; zavisnost od Google-a.
+
+Korisnik je predložio: A. Najlakše i najbezbednije.
+
+Claude je izabrao: A.
+- Slaže se da je najlakše: niko ne mora ništa da uči.
+- Ne slaže se potpuno da je najbezbednije. Lozinka je obično najslabija tačka (ista lozinka na više sajtova, papirić na recepciji). B je po tome bezbedniji. Razlika je ovde mala, ako se poštuju dva pravila ispod.
+- Pravila: svaki recepcioner ima svoj nalog (nema deljenja lozinke), a vlasnik može da doda ili ukloni recepcionera. Koristi se gotov, proveren alat za prijavu, ne pišemo svoj. Lozinke se nikad ne čuvaju u čitljivom obliku.
+- "Zaboravljena lozinka" traži slanje emaila, pa nam treba servis za slanje emaila.
+- Klub i prvog vlasnika za sada pravimo ručno. Samostalna registracija kluba dolazi kasnije.
+
+Šta bi promenilo odluku:
+- Ako se pokaže da recepcioneri ipak dele lozinke. Tada dodajemo B ili C.
+- Ako vlasnici traže ulaz jednim klikom. Tada dodajemo C (Google) pored A.
+
+Dopuna (2026-10-17): korisnik je odmah tražio i Google prijavu za vlasnika, isto kao za igrače (Odluka 010). Vlasnik bira: email i lozinka ili Google. Claude se slaže: to je bio uslov iz "Šta bi promenilo odluku", a isti alat pokriva oba načina, pa je dodatni posao mali. Pravilo: Google prijava ne pravi novog vlasnika. U deo za vlasnika ulazi samo email koji je vlasnik kluba prethodno dodao, bez obzira na način prijave.
+
+## 011. Cenovnik
+
+Datum: 2026-10-17
+
+Problem: Cenu sada vlasnik kuca ručno. Online igrač mora da vidi cenu pre rezervacije.
+
+Opcije:
+- A) Jedna cena po satu za ceo klub (npr. 3.200 din/sat, 90 minuta = 4.800). Prednost: najjednostavnije. Mana: mnogi klubovi uveče i vikendom naplaćuju skuplje.
+- B) Cena po dobu dana i danu u nedelji. Prednost: odgovara tome kako klubovi naplaćuju. Mana: složenije podešavanje i pravilo za termin koji prelazi iz jedne cene u drugu.
+- C) Kao B, ali i po terenu. Prednost: najveća sloboda. Mana: najviše podešavanja, možda nikome ne treba.
+
+Korisnik je predložio: A.
+
+Claude je izabrao: A, kao početak.
+- Još nismo razgovarali ni sa jednim vlasnikom, pa ne znamo kako tačno naplaćuju. Ne pravimo složen cenovnik na pretpostavci.
+- Prelazak na B kasnije je mali posao, jer se cena već pamti na svakoj rezervaciji. Stari termini se ne menjaju kad se cenovnik promeni.
+- Vlasnik uvek može ručno da promeni cenu pojedinačne rezervacije (popust, stalni igrač).
+
+Šta bi promenilo odluku:
+- Ako prvi klub kaže da ima različite cene uveče ili vikendom. Tada odmah prelazimo na B, jer bi online igrač inače video pogrešnu cenu.
+
+## 010. Kako znamo da je igrač pravi kad rezerviše online
+
+Datum: 2026-10-17
+
+Problem: Po Odluci 006 igrač rezerviše samo sa imenom i brojem telefona, bez naloga. Neko može da upiše tuđi broj ili da iz šale zauzme ceo raspored. Telefonom se to ne dešava, jer vlasnik čuje osobu.
+
+Opcije:
+- A) SMS kod pre svake online rezervacije. Prednost: broj je proveren. Mana: svaka poruka košta. Twilio za Srbiju navodi oko $0,41 po poruci; domaći servisi nisu provereni.
+- B) Vlasnik potvrđuje svaku online rezervaciju. Prednost: besplatno i sigurno. Mana: igrač ne dobija potvrdu odmah, vlasnik ima posao više.
+- C) Bez provere, uz pravila (ograničen broj budućih rezervacija, zabrana posle nedolazaka). Prednost: besplatno i trenutno. Mana: tuđi ili izmišljen broj prolazi.
+
+Korisnik je predložio: novu opciju. Za online rezervaciju igrač mora da ima nalog i da se prijavi kad prvi put uđe, kao u aplikaciji koju je korisnik isprobao. Prijava emailom i lozinkom ili preko Google-a.
+
+Claude je izabrao: korisnikovu opciju, sa dopunama.
+- Nalog rešava veći deo problema: igrač nije anoniman, klub može da blokira nalog, igrač sam vidi i otkazuje svoje termine.
+- Telefonske rezervacije ostaju bez naloga, kao u Odluci 006.
+- Zamka: broj telefona upisan u nalog niko ne proverava. Kad bi se nalog sam spojio sa istorijom tog broja, neko bi napravio nalog sa tuđim brojem i video tuđe termine. Zato važi pravilo: nalog vidi samo rezervacije koje je sam napravio online. Vlasnik i dalje vidi sve rezervacije jednog broja zajedno.
+- Pravila protiv zloupotrebe: najviše 2 buduće rezervacije po nalogu u jednom klubu; posle 2 nedolaska nalog ne može da rezerviše online u tom klubu; vlasnik može da blokira nalog.
+- Google ne daje broj telefona, pa igrač upisuje ime i broj pri prvoj rezervaciji.
+- Isti alat za prijavu služi i vlasnicima i igračima (Odluka 009).
+
+Ovo menja Odluku 006 samo za online rezervacije: online igrač ima nalog, telefonski i dalje nema.
+
+Šta bi promenilo odluku:
+- Ako se pojave lažne rezervacije sa izmišljenim brojevima. Tada dodajemo SMS proveru broja jednom, pri registraciji.
+- Ako se nađe domaći SMS servis po ceni od par dinara. Tada isto dodajemo SMS proveru.
+- Ako mnogo igrača odustane kad vidi da mora da napravi nalog. Tada razmatramo rezervaciju bez naloga uz potvrdu vlasnika (opcija B).

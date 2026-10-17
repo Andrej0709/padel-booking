@@ -299,13 +299,13 @@ footer { font-size: 13px; color: var(--muted); }
 
   <section class="model" id="model">
     <div class="model-head">
-      <span class="eyebrow">Temelj sistema · Odluke 005 i 006 · tabele postoje u bazi</span>
+      <span class="eyebrow">Temelj sistema · Odluke 005, 006, 009, 010 i 011 · tabele postoje u bazi</span>
       <h2>Model podataka</h2>
       <p>Tabele u bazi i veze između njih. Klikni na tabelu da vidiš šta čuva i zašto postoji. Plavo označena polja su ona oko kojih smo donosili odluke.</p>
     </div>
     <div class="stage">
       <div class="diagram-wrap">
-        <svg id="er" viewBox="0 -16 900 556" role="img" aria-label="Tabele u bazi: klubovi, vlasnici, tereni, radno vreme, rezervacije i igrači, sa vezama između njih"></svg>
+        <svg id="er" viewBox="0 -16 900 790" role="img" aria-label="Tabele u bazi: klubovi, vlasnici, tereni, radno vreme, rezervacije, igrači, korisnici i blokade, sa vezama između njih"></svg>
       </div>
     </div>
     <div class="model-grid">
@@ -427,9 +427,9 @@ const SCENARIOS = [
         body: "Marko izabere Teren 2, subota 19:00–20:30, i klikne \"Rezerviši\"." },
       { move: ["igrac", "server"], title: "Zahtev za rezervaciju",
         body: "Telefon šalje serveru: teren 2, subota 19:00, igrač Marko. Ovo je POST zahtev. GET znači \"daj mi podatke\", a POST znači \"napravi nešto novo\".",
-        ops: [{ t: "net", key: "b", m: "POST", p: "/api/rezervacije", who: "Marko rezerviše Teren 2, sub 19:00" }] },
+        ops: [{ t: "net", key: "b", m: "POST", p: "/k/padel-centar", who: "Marko rezerviše Teren 2, sub 19:00" }] },
       { active: ["server"], title: "Server proverava zahtev",
-        body: "Da li je Marko prijavljen? Da li je termin u budućnosti? Da li teren radi u 19h? Server nikad ne veruje telefonu na reč, jer neko može da izmeni aplikaciju i pošalje bilo šta." },
+        body: "Da li je Marko prijavljen? Da li je termin u budućnosti? Da li teren radi u 19h? Da li Marko već ima 2 zakazana termina ili je blokiran? Server nikad ne veruje telefonu na reč, jer neko može da izmeni aplikaciju i pošalje bilo šta." },
       { move: ["server", "baza"], title: "Upis u bazu",
         body: "Server traži od baze da upiše novi red. Baza ima svoje pravilo: dva termina na istom terenu ne smeju da se preklapaju. Ovaj se ni sa čim ne preklapa, pa prolazi.",
         ops: [{ t: "add", table: "rezervacije", row: { id: 1043, br: "#1043", teren: "Teren 2", vreme: "sub 19:00–20:30", igrac: "Marko" } }] },
@@ -458,9 +458,9 @@ const SCENARIOS = [
         body: "Petar zove i pita za subotu oko pola sedam. Vlasnik na tabli rasporeda vidi da je Teren 1 slobodan od 18:30 i klikne to prazno polje. Otvori se prozor sa već upisanim terenom, početkom 18:30 i trajanjem 90 minuta. Vlasnik dopiše ime i broj telefona." },
       { move: ["vlasnik", "server"], title: "Obrazac ide na server",
         body: "Klik na \"Upiši\" šalje POST zahtev. Ovde nema posebne adrese kao /api/rezervacije: Next.js obrazac šalje podatke na istu stranicu, a server zna koju funkciju da pokrene. To se zove server akcija.",
-        ops: [{ t: "net", key: "v", m: "POST", p: "/raspored?datum=…", who: "Vlasnik upisuje Petra, Teren 1, sub 18:30" }] },
+        ops: [{ t: "net", key: "v", m: "POST", p: "/vlasnik", who: "Vlasnik upisuje Petra, Teren 1, sub 18:30" }] },
       { active: ["server"], title: "Server proverava podatke",
-        body: "Da li je upisano ime? Da li je broj ispravan? Broj \"064 777 8888\" server pretvara u +381647778888, da bi isti igrač uvek imao isti zapis. Na kraju pita bazu da li Teren 1 subotom radi od 18:30 do 20:00." },
+        body: "Prvo: da li je ovo zaista neko iz tima kluba? Server to proverava pri svakom upisu, ne samo kad se stranica otvori. Zatim: da li je upisano ime? Da li je broj ispravan? Broj \"064 777 8888\" server pretvara u +381647778888, da bi isti igrač uvek imao isti zapis. Na kraju pita bazu da li Teren 1 subotom radi od 18:30 do 20:00." },
       { move: ["server", "baza"], title: "Igrač i rezervacija u jednom potezu",
         body: "Server bazi pošalje jednu naredbu: nađi igrača po broju telefona (ili ga napravi) i upiši rezervaciju. Baza proveri pravilo o preklapanju. Nikolin termin se završava u 18:30, a kraj se ne računa, pa novi termin prolazi.",
         ops: [{ t: "add", table: "rezervacije", row: { id: 1045, br: "#1045", teren: "Teren 1", vreme: "sub 18:30–20:00", igrac: "Petar" } }] },
@@ -780,32 +780,40 @@ document.addEventListener("keydown", (e) => {
 });
 
 const ER = {
-  klubovi: { x: 30, y: 30, fields: ["id", "naziv", "adresa", "telefon"], keys: [],
+  klubovi: { x: 30, y: 30, fields: ["id", "naziv", "slug", "adresa", "telefon", "cena/sat"], keys: ["slug", "cena/sat"],
     what: "Jedan red je jedan klub.",
-    why: "Sistem od prvog dana podržava više klubova. Svaki drugi podatak (tereni, igrači, vlasnici) zna kom klubu pripada, pa klub vidi samo svoje." },
+    why: "Sistem od prvog dana podržava više klubova. Svaki drugi podatak (tereni, igrači, vlasnici) zna kom klubu pripada, pa klub vidi samo svoje. Slug je kratko ime u adresi stranice za igrače (/k/padel-centar). Cena po satu je jedna za ceo klub (Odluka 011)." },
   vlasnici: { x: 30, y: 300, fields: ["id", "klub", "ime", "email", "uloga"], keys: ["uloga"],
-    what: "Ljudi koji ulaze u admin deo kluba: vlasnik i recepcija.",
-    why: "Uloga određuje šta ko sme. Recepcija upisuje rezervacije, a samo vlasnik menja cene i radno vreme." },
+    what: "Tim kluba: vlasnik i recepcija. Ko je ovde upisan, ulazi u deo za vlasnika.",
+    why: "Pristup se daje po emailu (Odluka 009): vlasnik doda email u Tim, a osoba se prijavi sa tim emailom, lozinkom ili Google-om. Prijava sama nikad ne pravi člana tima. Uloga određuje šta ko sme: recepcija vidi raspored i igrače, a samo vlasnik menja podešavanja i tim." },
   tereni: { x: 350, y: 30, fields: ["id", "klub", "naziv", "vrsta", "aktivan"], keys: ["aktivan"],
     what: "Svaki teren kluba, na primer Teren 1, zatvoren.",
     why: "Polje \"aktivan\" je za mrtvu sezonu iz Odluke 003. Teren koji zimi ne radi označi se kao neaktivan i taj mesec se ne naplaćuje." },
   radno_vreme: { x: 670, y: 30, fields: ["id", "teren", "dan", "otvara", "zatvara"], keys: [],
     what: "Kad koji teren radi, za svaki dan u nedelji.",
     why: "Bez ovoga server ne može da izračuna slobodne termine. Slobodno je radno vreme minus rezervacije." },
-  rezervacije: { x: 350, y: 300, fields: ["id", "teren", "igrač", "početak", "kraj", "cena", "status", "izvor"], keys: ["početak", "kraj", "status", "izvor"],
+  rezervacije: { x: 350, y: 300, fields: ["id", "teren", "igrač", "početak", "kraj", "cena", "status", "izvor", "korisnik"], keys: ["početak", "kraj", "status", "izvor", "korisnik"],
     what: "Ko je zauzeo koji teren i kada. Srce sistema.",
-    why: "Početak i kraj (Odluka 005) dozvoljavaju termine različite dužine i računanje cene. Status (potvrđena, odigrana, nedolazak, otkazana) beleži da li je igrač došao, pa se vidi ko ne dolazi. Izvor (telefon ili online) pokazuje klubu koliko se online rezervacije stvarno koriste. Otkazane rezervacije ne zauzimaju teren." },
+    why: "Početak i kraj (Odluka 005) dozvoljavaju termine različite dužine i računanje cene. Status (potvrđena, odigrana, nedolazak, otkazana) beleži da li je igrač došao, pa se vidi ko ne dolazi. Izvor (telefon ili online) pokazuje klubu koliko se online rezervacije stvarno koriste. Otkazane rezervacije ne zauzimaju teren. Korisnik je nalog koji je rezervisao online; telefonske rezervacije ga nemaju." },
   igraci: { x: 670, y: 300, fields: ["id", "klub", "ime", "telefon"], keys: ["telefon"],
     what: "Igrači kluba, prepoznati po broju telefona (Odluka 006).",
-    why: "Ista osoba je jedan red, bilo da je zvala telefonom ili rezervisala online. Zato se vidi cela istorija igrača, uključujući nedolaske. Igrač koji igra u dva kluba postoji dva puta, jednom u svakom, da jedan klub ne bi video podatke drugog." }
+    why: "Ista osoba je jedan red, bilo da je zvala telefonom ili rezervisala online. Zato se vidi cela istorija igrača, uključujući nedolaske. Igrač koji igra u dva kluba postoji dva puta, jednom u svakom, da jedan klub ne bi video podatke drugog." },
+  korisnici: { x: 350, y: 600, fields: ["id", "ime", "email", "telefon"], keys: ["email"],
+    what: "Nalozi za prijavu: igrači koji rezervišu online i ljudi iz tima kluba.",
+    why: "Nalog je obavezan samo za online rezervaciju (Odluka 010). Broj telefona u nalogu niko ne proverava, zato nalog vidi samo rezervacije koje je sam napravio, nikad staru istoriju tog broja. Uz ovu tabelu idu tri pomoćne tabele alata za prijavu: sesije (ko je trenutno prijavljen), nacini_prijave (lozinka ili Google, lozinka samo kao šifrovani otisak) i verifikacije (linkovi za potvrdu emaila i novu lozinku)." },
+  blokade: { x: 670, y: 600, fields: ["id", "klub", "korisnik"], keys: [],
+    what: "Nalozi kojima je klub zabranio online rezervacije.",
+    why: "Pravilo protiv zloupotrebe iz Odluke 010. Blokiran nalog i dalje može da zove klub telefonom. Uz to važi i pravilo u kodu: najviše 2 buduće online rezervacije po nalogu i nema online rezervacije posle 2 nedolaska." }
 };
 const ER_LINKS = [
   { d: "M230,80 H350", lx: 290, ly: 72 },
-  { d: "M130,164 V300", lx: 138, ly: 236, anchor: "start" },
+  { d: "M130,208 V300", lx: 138, ly: 256, anchor: "start" },
   { d: "M550,80 H670", lx: 610, ly: 72 },
   { d: "M450,186 V300", lx: 458, ly: 246, anchor: "start" },
   { d: "M670,360 H550", lx: 610, ly: 352, label: "više ← 1" },
-  { d: "M130,30 V2 H886 V360 H870", lx: 600, ly: -4, soft: true, label: "1 → više (klub → igrači)" }
+  { d: "M130,30 V2 H886 V360 H870", lx: 600, ly: -4, soft: true, label: "1 → više (klub → igrači)" },
+  { d: "M450,544 V600", lx: 458, ly: 576, anchor: "start", label: "više ← 1" },
+  { d: "M670,660 H550", lx: 610, ly: 652, label: "više ← 1" }
 ];
 const ER_W = 200;
 const erH = (n) => 34 + 22 * n + 12;

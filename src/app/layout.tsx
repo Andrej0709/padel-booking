@@ -1,29 +1,38 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow, Barlow_Semi_Condensed } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const barlow = Barlow({
+  variable: "--font-barlow",
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const barlowSemi = Barlow_Semi_Condensed({
+  variable: "--font-barlow-semi",
+  subsets: ["latin", "latin-ext"],
+  weight: ["600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "Padel booking",
-  description: "Raspored terena za padel klubove",
+  title: { default: "padel-booking", template: "%s · padel-booking" },
+  description: "Rezervacija padel terena",
 };
+
+// Applies the saved theme before the first paint, so the page never flashes the wrong colors.
+const temaSkripta = `(function(){try{var t=localStorage.getItem("tema");if(t)document.documentElement.setAttribute("data-tema",t)}catch(e){}})()`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="sr"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${barlow.variable} ${barlowSemi.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: temaSkripta }} />
+      </head>
+      <body className="flex min-h-full flex-col">{children}</body>
     </html>
   );
 }

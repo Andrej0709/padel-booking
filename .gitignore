@@ -40,3 +40,6 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .neon
+
+# design exports from Claude Design (source material, not part of the app)
+*.zip

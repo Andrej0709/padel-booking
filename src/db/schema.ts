@@ -32,9 +32,13 @@ export const izvorRezervacijeEnum = pgEnum("izvor_rezervacije", ["telefon", "onl
 export const klubovi = pgTable("klubovi", {
   id: uuid("id").primaryKey().defaultRandom(),
   naziv: text("naziv").notNull(),
+  // Short name in the club web address: /k/padel-centar
+  slug: text("slug").notNull().unique(),
   adresa: text("adresa"),
   telefon: text("telefon"),
   vremenskaZona: text("vremenska_zona").notNull().default("Europe/Belgrade"),
+  // One price per hour for the whole club. See decision 011.
+  cenaPoSatuRsd: integer("cena_po_satu_rsd"),
   kreirano: kreirano(),
 });
 
@@ -119,13 +123,108 @@ export const rezervacije = pgTable(
     status: statusRezervacijeEnum("status").notNull().default("potvrdjena"),
     // Phone vs online lets the club see how much the online booking is actually used.
     izvor: izvorRezervacijeEnum("izvor").notNull(),
+    // The account that booked online. An account only ever sees its own online bookings,
+    // never the history of the phone number it typed in. See decision 010.
+    korisnikId: text("korisnik_id").references(() => korisnici.id, { onDelete: "set null" }),
     kreirano: kreirano(),
   },
   (t) => [
     check("rezervacije_pocetak_pre_kraja", sql`${t.pocetak} < ${t.kraj}`),
     check("rezervacije_cena_pozitivna", sql`${t.cenaRsd} is null or ${t.cenaRsd} >= 0`),
     index("rezervacije_igrac_idx").on(t.igracId),
+    index("rezervacije_korisnik_idx").on(t.korisnikId),
     // The no-overlap rule (EXCLUDE constraint) lives in a hand-written migration,
     // because Drizzle cannot express it in the schema.
   ],
+);
+
+// Accounts blocked from booking online in one club (decision 010).
+export const blokade = pgTable(
+  "blokade",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    klubId: uuid("klub_id")
+      .notNull()
+      .references(() => klubovi.id, { onDelete: "cascade" }),
+    korisnikId: text("korisnik_id")
+      .notNull()
+      .references(() => korisnici.id, { onDelete: "cascade" }),
+    kreirano: kreirano(),
+  },
+  (t) => [unique("blokade_klub_korisnik_unique").on(t.klubId, t.korisnikId)],
+);
+
+// Login tables used by Better Auth (decisions 009 and 010).
+// Property names are the ones Better Auth expects; column names are Serbian like the rest.
+const azurirano = () =>
+  timestamp("azurirano", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date());
+
+export const korisnici = pgTable("korisnici", {
+  id: text("id").primaryKey(),
+  name: text("ime").notNull(),
+  email: text("email").notNull().unique(),
+  emailVerified: boolean("email_potvrdjen").notNull().default(false),
+  image: text("slika"),
+  // Typed in by the player, never verified. Only used to fill in the booking form.
+  telefon: text("telefon"),
+  createdAt: timestamp("kreirano", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: azurirano(),
+});
+
+export const sesije = pgTable(
+  "sesije",
+  {
+    id: text("id").primaryKey(),
+    expiresAt: timestamp("istice", { withTimezone: true }).notNull(),
+    token: text("token").notNull().unique(),
+    ipAddress: text("ip_adresa"),
+    userAgent: text("uredjaj"),
+    userId: text("korisnik_id")
+      .notNull()
+      .references(() => korisnici.id, { onDelete: "cascade" }),
+    createdAt: timestamp("kreirano", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: azurirano(),
+  },
+  (t) => [index("sesije_korisnik_idx").on(t.userId)],
+);
+
+// One row per way of logging in: "credential" (email and password) or "google".
+export const naciniPrijave = pgTable(
+  "nacini_prijave",
+  {
+    id: text("id").primaryKey(),
+    accountId: text("nalog_id").notNull(),
+    providerId: text("nacin").notNull(),
+    userId: text("korisnik_id")
+      .notNull()
+      .references(() => korisnici.id, { onDelete: "cascade" }),
+    accessToken: text("access_token"),
+    refreshToken: text("refresh_token"),
+    idToken: text("id_token"),
+    accessTokenExpiresAt: timestamp("access_token_istice", { withTimezone: true }),
+    refreshTokenExpiresAt: timestamp("refresh_token_istice", { withTimezone: true }),
+    scope: text("scope"),
+    // Scrypt hash, never the password itself.
+    password: text("lozinka"),
+    createdAt: timestamp("kreirano", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: azurirano(),
+  },
+  (t) => [index("nacini_prijave_korisnik_idx").on(t.userId)],
+);
+
+// Short-lived codes for email confirmation and password reset links.
+export const verifikacije = pgTable(
+  "verifikacije",
+  {
+    id: text("id").primaryKey(),
+    identifier: text("oznaka").notNull(),
+    value: text("vrednost").notNull(),
+    expiresAt: timestamp("istice", { withTimezone: true }).notNull(),
+    createdAt: timestamp("kreirano", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: azurirano(),
+  },
+  (t) => [index("verifikacije_oznaka_idx").on(t.identifier)],
 );

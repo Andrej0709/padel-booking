@@ -1,26 +1,121 @@
 @import "tailwindcss";
 
+/* Colors from the Claude Design file (padel-booking, dizajn v1).
+   Light by default, dark when the system asks for it or the person picks it with the theme button. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --bg: oklch(0.975 0.005 240);
+  --surface: #ffffff;
+  --surface2: oklch(0.955 0.007 245);
+  --ink: oklch(0.23 0.03 255);
+  --muted: oklch(0.48 0.02 255);
+  --line: oklch(0.89 0.01 250);
+  --line2: oklch(0.94 0.006 250);
+  --brand: oklch(0.5 0.15 250);
+  --brand-deep: oklch(0.44 0.14 252);
+  --lime: oklch(0.9 0.19 125);
+  --lime-ink: oklch(0.3 0.08 130);
+  --conf-bg: oklch(0.5 0.15 250);
+  --conf-fg: #ffffff;
+  --played-bg: oklch(0.93 0.05 160);
+  --played-fg: oklch(0.36 0.08 160);
+  --ns-bg: oklch(0.94 0.045 25);
+  --ns-fg: oklch(0.45 0.16 25);
+  --danger: oklch(0.55 0.2 25);
+  --now: oklch(0.6 0.22 25);
+  --hover: oklch(0.95 0.035 250);
+  --closed-a: oklch(0.94 0.004 250);
+  --closed-b: oklch(0.9 0.006 250);
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  :root:not([data-tema="svetla"]) {
+    --bg: oklch(0.16 0.02 255);
+    --surface: oklch(0.2 0.022 255);
+    --surface2: oklch(0.25 0.024 255);
+    --ink: oklch(0.96 0.005 250);
+    --muted: oklch(0.72 0.02 250);
+    --line: oklch(0.31 0.022 255);
+    --line2: oklch(0.26 0.02 255);
+    --brand: oklch(0.64 0.15 250);
+    --brand-deep: oklch(0.36 0.12 252);
+    --lime-ink: oklch(0.28 0.08 130);
+    --conf-bg: oklch(0.55 0.15 250);
+    --played-bg: oklch(0.32 0.06 160);
+    --played-fg: oklch(0.9 0.08 160);
+    --ns-bg: oklch(0.33 0.08 25);
+    --ns-fg: oklch(0.9 0.07 25);
+    --danger: oklch(0.66 0.19 25);
+    --now: oklch(0.68 0.2 25);
+    --hover: oklch(0.28 0.05 250);
+    --closed-a: oklch(0.22 0.015 255);
+    --closed-b: oklch(0.26 0.015 255);
+    color-scheme: dark;
   }
 }
 
+:root[data-tema="tamna"] {
+  --bg: oklch(0.16 0.02 255);
+  --surface: oklch(0.2 0.022 255);
+  --surface2: oklch(0.25 0.024 255);
+  --ink: oklch(0.96 0.005 250);
+  --muted: oklch(0.72 0.02 250);
+  --line: oklch(0.31 0.022 255);
+  --line2: oklch(0.26 0.02 255);
+  --brand: oklch(0.64 0.15 250);
+  --brand-deep: oklch(0.36 0.12 252);
+  --lime-ink: oklch(0.28 0.08 130);
+  --conf-bg: oklch(0.55 0.15 250);
+  --played-bg: oklch(0.32 0.06 160);
+  --played-fg: oklch(0.9 0.08 160);
+  --ns-bg: oklch(0.33 0.08 25);
+  --ns-fg: oklch(0.9 0.07 25);
+  --danger: oklch(0.66 0.19 25);
+  --now: oklch(0.68 0.2 25);
+  --hover: oklch(0.28 0.05 250);
+  --closed-a: oklch(0.22 0.015 255);
+  --closed-b: oklch(0.26 0.015 255);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface2: var(--surface2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line2: var(--line2);
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-lime: var(--lime);
+  --color-lime-ink: var(--lime-ink);
+  --color-conf-bg: var(--conf-bg);
+  --color-conf-fg: var(--conf-fg);
+  --color-played-bg: var(--played-bg);
+  --color-played-fg: var(--played-fg);
+  --color-ns-bg: var(--ns-bg);
+  --color-ns-fg: var(--ns-fg);
+  --color-danger: var(--danger);
+  --color-now: var(--now);
+  --color-hover: var(--hover);
+  --font-sans: var(--font-barlow), system-ui, sans-serif;
+  --font-naslov: var(--font-barlow-semi), var(--font-barlow), system-ui, sans-serif;
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-barlow), system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+
+:focus-visible {
+  outline: 2px solid oklch(0.62 0.15 250);
+  outline-offset: 1px;
+}
+
+/* Hatched background for hours when a court is closed. */
+.zatvoreno {
+  background: repeating-linear-gradient(135deg, var(--closed-a) 0 6px, var(--closed-b) 6px 12px);
 }
